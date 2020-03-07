@@ -7,19 +7,27 @@ import java.net.Socket;
 public class Client {
 
     private final static String EXIT_COMMAND = "QUIT";
+    private final static char ACCEPTING_MESSAGE_BEGINNING = 'A';
 
-    private static String readNick(BufferedReader in, PrintWriter output) {
+    private static String readNick(BufferedReader consoleInput, BufferedReader socketInput, PrintWriter socketOutput) {
         String nick = null;
+
         System.out.print("Enter your nick: ");
         try {
-            nick = in.readLine();
 
-            while(nick.trim().isEmpty()) {
+            nick = consoleInput.readLine();
+
+            while (nick.trim().isEmpty()) {
                 System.out.println("Incorrect nick!");
-                nick = in.readLine();
+                System.out.print("Enter your nick: ");
+                nick = consoleInput.readLine();
             }
 
-            output.println(nick);
+            socketOutput.println(nick);
+            String response = socketInput.readLine();
+            System.out.println(response);
+            if (response.charAt(0) != ACCEPTING_MESSAGE_BEGINNING) nick = null;
+
         } catch (IOException e) {
             System.out.println("Error with reading nick!");
         }
@@ -29,20 +37,25 @@ public class Client {
 
     private static void communicate(String clientNick, BufferedReader consoleInput, BufferedReader input, PrintWriter output) {
         String prompt = String.format("[%s]: ", clientNick);
-        String readInput;
+        String readInput, response;
 
         try {
             System.out.print(prompt);
             readInput = consoleInput.readLine();
 
-            while(!readInput.trim().equals(EXIT_COMMAND)) {
+            while (!readInput.trim().equals(EXIT_COMMAND)) {
                 output.println(readInput);
 
-                String response = input.readLine();
-                System.out.println("Received response: " + response);
+                response = input.readLine();
+                if (response == null) {
+                    System.out.println("Server disconnected");
+                    readInput = EXIT_COMMAND;
+                } else {
+                    System.out.println("Received response: " + response);
 
-                System.out.print(prompt);
-                readInput = consoleInput.readLine();
+                    System.out.print(prompt);
+                    readInput = consoleInput.readLine();
+                }
             }
         } catch (IOException e) {
             System.out.println("Error with reading message!");
@@ -60,8 +73,8 @@ public class Client {
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
 
-            String clientNick = readNick(consoleIn, out);
-            if(clientNick != null) communicate(clientNick, consoleIn, in, out);
+            String clientNick = readNick(consoleIn, in, out);
+            if (clientNick != null) communicate(clientNick, consoleIn, in, out);
         } catch (IOException e) {
             System.out.println("Error with opening a socket!");
         }
