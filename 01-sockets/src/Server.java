@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -11,9 +8,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 public class Server {
     private final static int MAX_CLIENTS = 10;
-    private final static String OVERCROWDED_MESSAGE = "Server is overcrowded, try again later";
-    private final static String NICK_ALREADY_TAKEN_MESSAGE = "This nick is already taken, try another one";
-    private final static String ACCEPT_CLIENT_MESSAGE = "Accepted connection";
 
     public static void main(String[] args) {
         System.out.println("CHAT TCP SERVER");
@@ -22,26 +16,14 @@ public class Server {
         try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
 
             ThreadPoolExecutor clientThreadsExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(MAX_CLIENTS);
-            Map<String, Socket> clientSockets = new HashMap<>();
+            Map<String, ClientHandler> clientThreads = new HashMap<>();
 
-            while(true) {
+            while (true) {
                 Socket clientSocket = serverSocket.accept();
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                ClientHandler clientHandler = new ClientHandler(clientSocket, clientThreads);
 
-                if (clientThreadsExecutor.getPoolSize() == clientThreadsExecutor.getMaximumPoolSize()) {
-                    out.println(OVERCROWDED_MESSAGE);
-                } else {
-                    String clientNick = in.readLine();
-                    if (clientSockets.containsKey(clientNick)) {
-                        out.println(NICK_ALREADY_TAKEN_MESSAGE);
-                    } else {
-                        clientSockets.put(clientNick, clientSocket);
-                        ClientThread clientThread = new ClientThread(clientNick);
-                        clientThreadsExecutor.submit(clientThread);
-                        System.out.println("Client " + clientNick + " connected");
-                        out.println(ACCEPT_CLIENT_MESSAGE);
-                    }
+                if (clientHandler.isConnectionPossible(clientThreadsExecutor.getPoolSize(), clientThreadsExecutor.getMaximumPoolSize())) {
+                    clientThreadsExecutor.submit(clientHandler);
                 }
             }
         } catch (IOException e) {
