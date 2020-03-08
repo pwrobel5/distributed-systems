@@ -4,6 +4,7 @@ import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.Arrays;
 
 public class UDPListener implements Runnable {
@@ -25,8 +26,11 @@ public class UDPListener implements Runnable {
 
                 String msg = new String(receivedPacket.getData());
                 System.out.println(msg);
+            } catch (SocketException e) {
+                System.out.println("Lost UDP connection");
+                break;
             } catch (IOException e) {
-                System.out.println("Error with reading UDP data!");
+                System.out.println("Error with reading UDP data");
             }
         }
     }

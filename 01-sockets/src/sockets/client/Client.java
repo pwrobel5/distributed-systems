@@ -108,7 +108,7 @@ public class Client {
                 tcpSocketOutput.println(readInput);
             }
         } catch (IOException e) {
-            System.out.println("Error with reading message!");
+            System.out.println("Error with sending message!");
         }
         System.out.println("Closing Client chat");
     }

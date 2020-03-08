@@ -34,7 +34,7 @@ public class TCPHandler implements Runnable {
         } else if (this.clientThreads.containsKey(clientNick)) {
             output.println(NICK_ALREADY_TAKEN_MESSAGE);
             result = false;
-        } else if (!clientNick.equals(EXIT_COMMAND)) {
+        } else if (clientNick != null && !clientNick.equals(EXIT_COMMAND)) {
             this.clientNick = clientNick;
             clientThreads.put(clientNick, this);
             output.println(ACCEPT_CLIENT_MESSAGE);

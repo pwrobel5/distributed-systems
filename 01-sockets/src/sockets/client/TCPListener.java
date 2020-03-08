@@ -2,6 +2,7 @@ package sockets.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.SocketException;
 
 public class TCPListener implements Runnable {
     private BufferedReader input;
@@ -20,8 +21,10 @@ public class TCPListener implements Runnable {
                 System.out.println(readMessage);
                 readMessage = input.readLine();
             }
+        } catch(SocketException e) {
+            System.out.println("Lost TCP connection");
         } catch (IOException e) {
-            System.out.println("Error with reading message from server");
+            System.out.println("Error with reading TCP message from server");
         }
 
         System.out.println("Server disconnected");
