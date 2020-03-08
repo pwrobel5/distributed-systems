@@ -1,13 +1,11 @@
 package sockets.server;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Set;
 
 public class UDPHandler implements Runnable {
@@ -36,14 +34,14 @@ public class UDPHandler implements Runnable {
                 Integer clientPort = receivePacket.getPort();
                 Pair<InetAddress, Integer> senderData = new Pair<>(clientAddress, clientPort);
 
-                if(messageType == 'H') {
+                if (messageType == 'H') {
                     clientUdpSockets.add(senderData);
                     System.out.println("[UDP] Client at " + clientAddress.toString() + ":" + clientPort + " connected");
-                } else if(messageType == 'M') {
+                } else if (messageType == 'M') {
                     byte[] sendData = Arrays.copyOfRange(receivedData, 1, receivedData.length);
 
-                    for(Pair<InetAddress, Integer> currentClient : clientUdpSockets) {
-                        if(!currentClient.equals(senderData)) {
+                    for (Pair<InetAddress, Integer> currentClient : clientUdpSockets) {
+                        if (!currentClient.equals(senderData)) {
                             DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, currentClient.getAddress(), currentClient.getPort());
                             udpSocket.send(sendPacket);
                         }

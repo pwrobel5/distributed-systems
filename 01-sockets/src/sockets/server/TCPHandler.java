@@ -65,7 +65,7 @@ public class TCPHandler implements Runnable {
             System.out.println("Error with reading a message");
         }
 
-        System.out.println("Client " + clientNick + " disconnected");
+        System.out.println("[TCP] Client " + clientNick + " disconnected");
         this.clientThreads.remove(clientNick);
     }
 }

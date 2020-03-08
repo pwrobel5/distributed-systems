@@ -21,7 +21,7 @@ public class TCPListener implements Runnable {
                 System.out.println(readMessage);
                 readMessage = input.readLine();
             }
-        } catch(SocketException e) {
+        } catch (SocketException e) {
             System.out.println("Lost TCP connection");
         } catch (IOException e) {
             System.out.println("Error with reading TCP message from server");

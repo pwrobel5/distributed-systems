@@ -12,12 +12,15 @@ public class Client {
     private final String EXIT_COMMAND = "QUIT";
     private final String HOST_NAME = "localhost";
     private final int HOST_PORT_NUMBER = 4444;
+    private final String MULTICAST_ADDRESS = "230.0.0.0";
+    private final int MULTICAST_PORT_NUMBER = 4446;
 
     private Socket tcpSocket;
     private PrintWriter tcpSocketOutput;
     private BufferedReader tcpSocketInput;
 
     private DatagramSocket udpSocket;
+    private MulticastSocket multicastSocket;
 
     private BufferedReader consoleInput;
 
@@ -60,30 +63,33 @@ public class Client {
         }
     }
 
-    private void sendUdp(BufferedReader consoleInput) {
+    private byte[] loadFile(boolean writeHeader) throws IOException {
         final char DATA_UDP_MESSAGE = 'M';
-
-        System.out.println("Entering UDP mode");
         System.out.print("Enter path to file with message: ");
 
+        String filePath = consoleInput.readLine();
+        File inputFile = new File(filePath);
+
+        ByteArrayOutputStream messageStream = new ByteArrayOutputStream();
+        if(writeHeader) messageStream.write(DATA_UDP_MESSAGE);
+        messageStream.write(("[" + nick + "]:\n").getBytes());
+        messageStream.write(Files.readAllBytes(inputFile.toPath()));
+        return messageStream.toByteArray();
+    }
+
+    private void sendUdp(String hostName, Integer hostPortNumber, boolean isMulticast) {
+
         try {
-            String filePath = consoleInput.readLine();
-            File inputFile = new File(filePath);
+            byte[] message = loadFile(!isMulticast);
 
-            ByteArrayOutputStream messageStream = new ByteArrayOutputStream();
-            messageStream.write(DATA_UDP_MESSAGE);
-            messageStream.write(("[" + nick + "]:\n").getBytes());
-            messageStream.write(Files.readAllBytes(inputFile.toPath()));
-            byte[] message = messageStream.toByteArray();
-
-            InetAddress address = InetAddress.getByName(HOST_NAME);
-            DatagramPacket sendPacket = new DatagramPacket(message, message.length, address, HOST_PORT_NUMBER);
+            InetAddress address = InetAddress.getByName(hostName);
+            DatagramPacket sendPacket = new DatagramPacket(message, message.length, address, hostPortNumber);
 
             udpSocket.send(sendPacket);
 
             String myMsg = new String(Arrays.copyOfRange(message, 1, message.length));
             System.out.println(myMsg);
-        } catch(UnknownHostException e) {
+        } catch (UnknownHostException e) {
             System.out.println("Error with UDP connection");
         } catch (IOException e) {
             System.out.println("Incorrect file path!");
@@ -92,6 +98,7 @@ public class Client {
 
     private void sendMessages() {
         final String UDP_COMMAND = "U";
+        final String MULTICAST_COMMAND = "M";
         String prompt = String.format("[%s]: ", nick);
         String readInput = "";
 
@@ -99,8 +106,15 @@ public class Client {
             while (!readInput.trim().equals(EXIT_COMMAND)) {
                 readInput = consoleInput.readLine();
 
-                while(readInput.trim().equals(UDP_COMMAND)) {
-                    sendUdp(consoleInput);
+                while (readInput.trim().equals(UDP_COMMAND)) {
+                    System.out.println("Entering UDP mode");
+                    sendUdp(HOST_NAME, HOST_PORT_NUMBER, false);
+                    readInput = consoleInput.readLine();
+                }
+
+                while (readInput.trim().equals(MULTICAST_COMMAND)) {
+                    System.out.println("Entering multicast mode");
+                    sendUdp(MULTICAST_ADDRESS, MULTICAST_PORT_NUMBER, true);
                     readInput = consoleInput.readLine();
                 }
 
@@ -125,11 +139,16 @@ public class Client {
 
             client.udpSocket = new DatagramSocket();
 
+            client.multicastSocket = new MulticastSocket(client.MULTICAST_PORT_NUMBER);
+            InetAddress multicastAddress = InetAddress.getByName(client.MULTICAST_ADDRESS);
+            client.multicastSocket.joinGroup(multicastAddress);
+
             client.connect();
             if (client.nick != null) {
-                ThreadPoolExecutor listenersExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
+                ThreadPoolExecutor listenersExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(3);
                 listenersExecutor.submit(new TCPListener(client.tcpSocketInput));
                 listenersExecutor.submit(new UDPListener(client.udpSocket));
+                listenersExecutor.submit(new UDPListener(client.multicastSocket));
                 client.sendMessages();
             }
 
