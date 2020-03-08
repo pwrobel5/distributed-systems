@@ -60,9 +60,6 @@ public class Client {
         try {
             String filePath = consoleInput.readLine();
             File inputFile = new File(filePath);
-            System.out.println("Working Directory = " +
-                    System.getProperty("user.dir"));
-            System.out.println("File path: " + inputFile.toPath());
             byte[] fileContent = Files.readAllBytes(inputFile.toPath());
             InetAddress address = InetAddress.getByName(HOST_NAME);
 
