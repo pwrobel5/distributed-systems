@@ -1,3 +1,5 @@
+package sockets.server;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -5,18 +7,18 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Map;
 
-public class ClientHandler implements Runnable {
+public class TCPHandler implements Runnable {
     private String clientNick;
     private BufferedReader input;
     private PrintWriter output;
-    private Map<String, ClientHandler> clientThreads;
+    private Map<String, TCPHandler> clientThreads;
 
-    private final static String OVERCROWDED_MESSAGE = "Server is overcrowded, try again later";
+    private final static String OVERCROWDED_MESSAGE = "sockets.server.Server is overcrowded, try again later";
     private final static String NICK_ALREADY_TAKEN_MESSAGE = "This nick is already taken, try another one";
     private final static String ACCEPT_CLIENT_MESSAGE = "Accepted connection";
     private final static String EXIT_COMMAND = "QUIT";
 
-    public ClientHandler(Socket clientSocket, Map<String, ClientHandler> clientThreads) throws IOException {
+    public TCPHandler(Socket clientSocket, Map<String, TCPHandler> clientThreads) throws IOException {
         this.input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         this.output = new PrintWriter(clientSocket.getOutputStream(), true);
         this.clientThreads = clientThreads;
@@ -50,10 +52,10 @@ public class ClientHandler implements Runnable {
     public void run() {
         try {
             String message = input.readLine();
-            while(!message.equals(EXIT_COMMAND)) {
+            while (!message.equals(EXIT_COMMAND)) {
                 String formattedMessage = String.format("[%s] %s", clientNick, message);
-                for(ClientHandler clientHandler : clientThreads.values()) {
-                    if (clientHandler != this) clientHandler.sendMessage(formattedMessage);
+                for (TCPHandler TCPHandler : clientThreads.values()) {
+                    if (TCPHandler != this) TCPHandler.sendMessage(formattedMessage);
                 }
 
                 message = input.readLine();

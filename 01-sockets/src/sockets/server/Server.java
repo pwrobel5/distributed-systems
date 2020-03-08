@@ -1,3 +1,5 @@
+package sockets.server;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,14 +18,14 @@ public class Server {
         try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
 
             ThreadPoolExecutor clientThreadsExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(MAX_CLIENTS);
-            Map<String, ClientHandler> clientThreads = new HashMap<>();
+            Map<String, TCPHandler> clientThreads = new HashMap<>();
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                ClientHandler clientHandler = new ClientHandler(clientSocket, clientThreads);
+                TCPHandler TCPHandler = new TCPHandler(clientSocket, clientThreads);
 
-                if (clientHandler.isConnectionPossible(clientThreadsExecutor.getPoolSize(), clientThreadsExecutor.getMaximumPoolSize())) {
-                    clientThreadsExecutor.submit(clientHandler);
+                if (TCPHandler.isConnectionPossible(clientThreadsExecutor.getPoolSize(), clientThreadsExecutor.getMaximumPoolSize())) {
+                    clientThreadsExecutor.submit(TCPHandler);
                 }
             }
         } catch (IOException e) {

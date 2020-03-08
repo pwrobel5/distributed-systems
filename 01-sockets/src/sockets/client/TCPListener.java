@@ -1,10 +1,12 @@
+package sockets.client;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 
-public class ClientListener implements Runnable {
+public class TCPListener implements Runnable {
     private BufferedReader input;
 
-    public ClientListener(BufferedReader input) {
+    public TCPListener(BufferedReader input) {
         this.input = input;
     }
 
