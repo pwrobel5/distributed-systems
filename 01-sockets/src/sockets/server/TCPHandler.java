@@ -38,7 +38,7 @@ public class TCPHandler implements Runnable {
             this.clientNick = clientNick;
             clientThreads.put(clientNick, this);
             output.println(ACCEPT_CLIENT_MESSAGE);
-            System.out.println("Client " + clientNick + " connected");
+            System.out.println("[TCP] Client " + clientNick + " connected");
         }
 
         return result;

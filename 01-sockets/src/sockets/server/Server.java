@@ -1,10 +1,14 @@
 package sockets.server;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -19,6 +23,11 @@ public class Server {
 
             ThreadPoolExecutor clientThreadsExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(MAX_CLIENTS);
             Map<String, TCPHandler> clientThreads = new HashMap<>();
+            Set<Pair<InetAddress, Integer>> clientUdpSockets = new HashSet<>();
+
+            UDPHandler udpHandler = new UDPHandler(clientUdpSockets, portNumber);
+            ExecutorService udpListenerExecutor = Executors.newSingleThreadExecutor();
+            udpListenerExecutor.submit(udpHandler);
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
@@ -29,7 +38,7 @@ public class Server {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Unable to open a socket!");
+            System.out.println("Server error!");
         }
     }
 }

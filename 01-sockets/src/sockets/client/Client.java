@@ -1,21 +1,17 @@
 package sockets.client;
 
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
-import java.util.concurrent.ExecutorService;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class Client {
 
-    private final static String EXIT_COMMAND = "QUIT";
-    private final static char ACCEPTING_MESSAGE_BEGINNING = 'A';
-    private final static String UDP_COMMAND = "U";
-
-    private final static String HOST_NAME = "localhost";
-    private final static int HOST_PORT_NUMBER = 4444;
+    private final String EXIT_COMMAND = "QUIT";
+    private final String HOST_NAME = "localhost";
+    private final int HOST_PORT_NUMBER = 4444;
 
     private Socket tcpSocket;
     private PrintWriter tcpSocketOutput;
@@ -27,7 +23,10 @@ public class Client {
 
     private String nick;
 
-    private void readNick() {
+    private void connect() {
+        final String HELLO_UDP_MESSAGE = "H";
+        final char ACCEPTING_MESSAGE_BEGINNING = 'A';
+
         System.out.print("Enter your nick: ");
         try {
             nick = consoleInput.readLine();
@@ -44,9 +43,17 @@ public class Client {
                 nick = null;
                 return;
             }
+
             String response = tcpSocketInput.readLine();
             System.out.println(response);
+
             if (response.charAt(0) != ACCEPTING_MESSAGE_BEGINNING) nick = null;
+            else {
+                InetAddress serverAddress = InetAddress.getByName(HOST_NAME);
+                byte[] sendBuffer = HELLO_UDP_MESSAGE.getBytes();
+                DatagramPacket helloUdpPacket = new DatagramPacket(sendBuffer, sendBuffer.length, serverAddress, HOST_PORT_NUMBER);
+                udpSocket.send(helloUdpPacket);
+            }
 
         } catch (IOException e) {
             System.out.println("Error with reading nick!");
@@ -54,17 +61,28 @@ public class Client {
     }
 
     private void sendUdp(BufferedReader consoleInput) {
+        final char DATA_UDP_MESSAGE = 'M';
+
         System.out.println("Entering UDP mode");
         System.out.print("Enter path to file with message: ");
 
         try {
             String filePath = consoleInput.readLine();
             File inputFile = new File(filePath);
-            byte[] fileContent = Files.readAllBytes(inputFile.toPath());
-            InetAddress address = InetAddress.getByName(HOST_NAME);
 
-            DatagramPacket sendPacket = new DatagramPacket(fileContent, fileContent.length, address, HOST_PORT_NUMBER);
+            ByteArrayOutputStream messageStream = new ByteArrayOutputStream();
+            messageStream.write(DATA_UDP_MESSAGE);
+            messageStream.write(("[" + nick + "]:\n").getBytes());
+            messageStream.write(Files.readAllBytes(inputFile.toPath()));
+            byte[] message = messageStream.toByteArray();
+
+            InetAddress address = InetAddress.getByName(HOST_NAME);
+            DatagramPacket sendPacket = new DatagramPacket(message, message.length, address, HOST_PORT_NUMBER);
+
             udpSocket.send(sendPacket);
+
+            String myMsg = new String(Arrays.copyOfRange(message, 1, message.length));
+            System.out.println(myMsg);
         } catch(UnknownHostException e) {
             System.out.println("Error with UDP connection");
         } catch (IOException e) {
@@ -73,6 +91,7 @@ public class Client {
     }
 
     private void sendMessages() {
+        final String UDP_COMMAND = "U";
         String prompt = String.format("[%s]: ", nick);
         String readInput = "";
 
@@ -99,14 +118,14 @@ public class Client {
         Client client = new Client();
 
         try {
-            client.tcpSocket = new Socket(HOST_NAME, HOST_PORT_NUMBER);
+            client.tcpSocket = new Socket(client.HOST_NAME, client.HOST_PORT_NUMBER);
             client.tcpSocketOutput = new PrintWriter(client.tcpSocket.getOutputStream(), true);
             client.tcpSocketInput = new BufferedReader(new InputStreamReader(client.tcpSocket.getInputStream()));
             client.consoleInput = new BufferedReader(new InputStreamReader(System.in));
 
             client.udpSocket = new DatagramSocket();
 
-            client.readNick();
+            client.connect();
             if (client.nick != null) {
                 ThreadPoolExecutor listenersExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
                 listenersExecutor.submit(new TCPListener(client.tcpSocketInput));
