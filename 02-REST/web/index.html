@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Simple currency rate comparator</title>
+</head>
+<body>
+<h1>Exchange rates</h1>
+<form action="rest/currency" method="GET">
+    <label for="base">Base currency:</label>
+    <input name="base"/>
+    <br>
+
+    <label for="foreign">Foreign currency (leave blank to get data for all available):</label>
+    <input name="foreign"/>
+    <br>
+
+    <label for="dateFrom">Date from: (YYYY-mm-dd)</label>
+    <input name="dateFrom"/>
+    <br>
+
+    <label for="dateTo">Date to: (YYYY-mm-dd, leave blank to get data only for one day)</label>
+    <input name="dateTo"/>
+    <br>
+
+    <input type="submit" value="Submit"/>
+</form>
+<form action="rest/available" method="GET">
+    <input type="submit" value="Check available currencies"/>
+</form>
+</body>
+</html>
