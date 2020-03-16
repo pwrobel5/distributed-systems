@@ -38,7 +38,7 @@ public class CurrencyRates {
         }
 
         if(baseSymbol.trim().isEmpty()) baseSymbol = "EUR";
-        resultBuilder.append("<b>Base: </b>").append(baseSymbol).append("<br>");
+        resultBuilder.append("<b>Base: </b>").append(baseSymbol.toLowerCase()).append("<br>");
         foreignSymbols = foreignSymbols.trim();
         TreeMap<String, List<ExchangeRateEntry>> currenciesExchangeRates = new TreeMap<>();
 
