@@ -2,7 +2,7 @@ package distributed.systems.rest.model;
 
 import java.time.LocalDate;
 
-public class ExchangeRateEntry {
+public class ExchangeRateEntry implements Comparable<ExchangeRateEntry> {
     private LocalDate date;
     private double rate;
 
@@ -27,5 +27,8 @@ public class ExchangeRateEntry {
         this.rate = rate;
     }
 
-
+    @Override
+    public int compareTo(ExchangeRateEntry o) {
+        return Double.compare(this.rate, o.rate);
+    }
 }

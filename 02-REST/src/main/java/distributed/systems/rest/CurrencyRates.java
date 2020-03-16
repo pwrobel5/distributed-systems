@@ -7,9 +7,7 @@ import javax.ws.rs.core.MediaType;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 @Path("/currency_rates")
 public class CurrencyRates {
@@ -38,9 +36,11 @@ public class CurrencyRates {
         }
 
         if(baseSymbol.trim().isEmpty()) baseSymbol = "EUR";
-        resultBuilder.append("<b>Base: </b>").append(baseSymbol.toLowerCase()).append("<br>");
+        else baseSymbol = baseSymbol.toUpperCase();
+
+        resultBuilder.append("<b>Base: </b>").append(baseSymbol).append("<br>");
         foreignSymbols = foreignSymbols.trim();
-        TreeMap<String, List<ExchangeRateEntry>> currenciesExchangeRates = new TreeMap<>();
+        TreeMap<String, LinkedList<ExchangeRateEntry>> currenciesExchangeRates = new TreeMap<>();
 
         for(LocalDate date = dateFrom; date.compareTo(dateTo) <= 0; date = date.plusDays(1)) {
             TreeMap<Object, Object> currentDateRates = CurrencyRatesReader.readRatesForDate(baseSymbol, foreignSymbols, date);
@@ -48,16 +48,24 @@ public class CurrencyRates {
         }
 
         resultBuilder.append("<table style=\"width:50%\">");
+
+        StringBuilder historyTableBuilder = new StringBuilder();
         for(String currencySymbol : currenciesExchangeRates.keySet()) {
-            resultBuilder.append(makeCurrencyTable(currenciesExchangeRates.get(currencySymbol), currencySymbol));
+            List<ExchangeRateEntry> currentValue = currenciesExchangeRates.get(currencySymbol);
+            historyTableBuilder.append(makeCurrencyTable(currentValue, currencySymbol));
+            Collections.sort(currentValue);
         }
+
+        resultBuilder.append(makeStatisticTable(currenciesExchangeRates));
+
+        resultBuilder.append(historyTableBuilder.toString());
         resultBuilder.append("</table>");
 
         resultBuilder.append("</body></html>");
         return resultBuilder.toString();
     }
 
-    private static void processData(LocalDate date, TreeMap<Object, Object> currentDateRates, TreeMap<String, List<ExchangeRateEntry>> currenciesExchangeRates) {
+    private static void processData(LocalDate date, TreeMap<Object, Object> currentDateRates, TreeMap<String, LinkedList<ExchangeRateEntry>> currenciesExchangeRates) {
         for (Object keyObject : currentDateRates.keySet()) {
             String currencySymbol = (String) keyObject;
 
@@ -65,20 +73,60 @@ public class CurrencyRates {
                 currenciesExchangeRates.put(currencySymbol, new LinkedList<>());
             }
 
-            Double exchangeRate = (Double) currentDateRates.get(keyObject);
+            double exchangeRate = Double.parseDouble(currentDateRates.get(keyObject).toString());
             currenciesExchangeRates.get(currencySymbol).add(new ExchangeRateEntry(date, exchangeRate));
         }
     }
 
     private static String makeCurrencyTable(List<ExchangeRateEntry> ratesList, String currencySymbol) {
         StringBuilder resultBuilder = new StringBuilder();
-        resultBuilder.append("<tr><th colspan=\"2\">").append(currencySymbol).append("</th></tr>");
+        resultBuilder.append("<tr><th colspan=\"6\">").append(currencySymbol).append("</th></tr>");
 
         for(ExchangeRateEntry exchangeRateEntry : ratesList) {
-            resultBuilder.append("<tr><td>").append(exchangeRateEntry.getDate().toString()).append("</td>");
-            resultBuilder.append("<td>").append(exchangeRateEntry.getRate()).append("</td></tr>");
+            resultBuilder.append("<tr><td colspan=\"3\" align=\"center\">").append(exchangeRateEntry.getDate().toString()).append("</td>");
+            resultBuilder.append("<td colspan=\"3\" align=\"center\">")
+                    .append(String.format(Locale.US, "%10.6f", exchangeRateEntry.getRate())).append("</td></tr>");
         }
 
         return resultBuilder.toString();
+    }
+
+    private static String makeStatisticTable(TreeMap<String, LinkedList<ExchangeRateEntry>> currenciesExchangeRates) {
+        StringBuilder resultBuilder = new StringBuilder();
+        resultBuilder.append("<tr><th colspan=\"6\">Statistics</th></tr>");
+        resultBuilder.append("<tr><th>Currency</th><th>Minimal rate</th><th>Minimal rate date</th>");
+        resultBuilder.append("<th>Maximal rate</th><th>Maximal rate date</th>");
+        resultBuilder.append("<th>Average rate</th></tr>");
+
+        for(String currencySymbol : currenciesExchangeRates.keySet()) {
+            resultBuilder.append("<tr><td align=\"center\">").append(currencySymbol).append("</td>");
+            LinkedList<ExchangeRateEntry> currencyList = currenciesExchangeRates.get(currencySymbol);
+
+            ExchangeRateEntry minimalRateEntry = currencyList.getFirst();
+            resultBuilder.append("<td align=\"center\">")
+                    .append(String.format(Locale.US, "%10.6f", minimalRateEntry.getRate()))
+                    .append("</td><td align=\"center\">")
+                    .append(minimalRateEntry.getDate().toString()).append("</td>");
+
+            ExchangeRateEntry maximalRateEntry = currencyList.getLast();
+            resultBuilder.append("<td align=\"center\">")
+                    .append(String.format(Locale.US, "%10.6f", maximalRateEntry.getRate()))
+                    .append("</td><td align=\"center\">")
+                    .append(maximalRateEntry.getDate().toString()).append("</td>");
+
+            resultBuilder.append("<td align=\"center\">").append(String.format(Locale.US, "%10.6f", calculateAverageRate(currencyList))).append("</td></tr>");
+        }
+
+        return resultBuilder.toString();
+    }
+
+    private static double calculateAverageRate(LinkedList<ExchangeRateEntry> rates) {
+        double sum = 0.0;
+
+        for(ExchangeRateEntry entry : rates) {
+            sum += entry.getRate();
+        }
+
+        return sum / rates.size();
     }
 }

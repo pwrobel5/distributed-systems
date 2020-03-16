@@ -16,7 +16,7 @@ public class CurrencyRatesReader {
         Client client = ClientBuilder.newClient();
         WebTarget webTarget = client.target(getForeignURI());
 
-        if(!baseSymbol.equalsIgnoreCase("EUR") && !foreignSymbols.contains(baseSymbol))
+        if(!baseSymbol.equalsIgnoreCase("EUR") && !foreignSymbols.contains(baseSymbol) && !foreignSymbols.isEmpty())
             foreignSymbols = foreignSymbols + "," + baseSymbol;
 
         String queryResult = webTarget.path(date.toString())
@@ -34,7 +34,7 @@ public class CurrencyRatesReader {
         Double divisionFactor = (Double) rates.get(baseSymbol);
 
         for(Map.Entry<Object, Object> entryObject : rates.entrySet()) {
-            Double value = (Double) entryObject.getValue();
+            Double value = Double.valueOf(entryObject.getValue().toString());
             rates.put(entryObject.getKey(), value / divisionFactor);
         }
 
