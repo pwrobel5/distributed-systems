@@ -35,11 +35,11 @@ public class CurrencyRates {
             return resultBuilder.toString();
         }
 
-        if(baseSymbol.trim().isEmpty()) baseSymbol = "EUR";
+        if(baseSymbol == null || baseSymbol.trim().isEmpty()) baseSymbol = "EUR";
         else baseSymbol = baseSymbol.toUpperCase();
 
         resultBuilder.append("<b>Base: </b>").append(baseSymbol).append("<br>");
-        foreignSymbols = foreignSymbols.trim();
+        foreignSymbols = (foreignSymbols == null) ? "" : foreignSymbols.trim();
         TreeMap<String, LinkedList<ExchangeRateEntry>> currenciesExchangeRates = new TreeMap<>();
 
         for(LocalDate date = dateFrom; date.compareTo(dateTo) <= 0; date = date.plusDays(1)) {
