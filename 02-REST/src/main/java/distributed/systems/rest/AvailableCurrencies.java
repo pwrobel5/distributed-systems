@@ -18,18 +18,6 @@ import java.util.TreeMap;
 @Path("/available")
 public class AvailableCurrencies {
 
-    private static TreeMap<Object, Object> parseJSON(String queryResult) {
-        Genson genson = new Genson();
-        Map<String, Object> firstPart = genson.deserialize(queryResult, Map.class);
-
-        if (!(Boolean) firstPart.get("success")) return null;
-        System.out.println(firstPart.get("symbols").getClass().toString());
-        Object symbolsSet = firstPart.get("symbols");
-        if (symbolsSet instanceof HashMap<?, ?>) {
-            return new TreeMap<>((HashMap<?, ?>) symbolsSet);
-        } else return null;
-    }
-
     @GET
     @Produces(MediaType.TEXT_HTML)
     public String getAvailableCurrenciesHTML() {
@@ -41,7 +29,8 @@ public class AvailableCurrencies {
 
         StringBuilder resultBuilder = new StringBuilder();
         resultBuilder.append("<html><head><meta charset=\"UTF-8\"><title>Available currencies</title></head><body>");
-        TreeMap<Object, Object> availableCurrencies = parseJSON(queryResult);
+
+        TreeMap<Object, Object> availableCurrencies = JSONParsingUtils.parseJSON(queryResult, "symbols");
         if (availableCurrencies == null) {
             resultBuilder.append("<h1>Error with reading data from remote server</h1>");
         } else {

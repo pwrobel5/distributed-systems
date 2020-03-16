@@ -1,26 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Simple currency rate comparator</title>
 </head>
 <body>
 <h1>Exchange rates</h1>
-<form action="rest/currency" method="GET">
-    <label for="base">Base currency:</label>
-    <input name="base"/>
+<form action="rest/currency_rates" method="GET">
+    <label for="baseSymbol">Base currency: (default EUR)</label>
+    <input name="baseSymbol" id="baseSymbol"/>
     <br>
 
-    <label for="foreign">Foreign currency (leave blank to get data for all available):</label>
-    <input name="foreign"/>
+    <label for="foreignSymbols">Foreign currency/ies separated by commas (leave blank to get data for all available):</label>
+    <input name="foreignSymbols" id="foreignSymbols"/>
     <br>
 
-    <label for="dateFrom">Date from: (YYYY-mm-dd)</label>
-    <input name="dateFrom"/>
+    <label for="dateFrom">Date from: (yyyy-MM-dd)</label>
+    <input name="dateFrom" id="dateFrom"/>
     <br>
 
-    <label for="dateTo">Date to: (YYYY-mm-dd, leave blank to get data only for one day)</label>
-    <input name="dateTo"/>
+    <label for="dateTo">Date to: (yyyy-MM-dd, inclusively, leave blank to get data only for one day)</label>
+    <input name="dateTo" id="dateTo"/>
     <br>
 
     <input type="submit" value="Submit"/>
