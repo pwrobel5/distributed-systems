@@ -1,4 +1,4 @@
-package rabbitmq.utils;
+package rabbitmq.model;
 
 public enum OrderType {
     CARGO, PEOPLE, ORBIT;

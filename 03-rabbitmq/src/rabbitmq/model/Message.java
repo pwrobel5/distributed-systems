@@ -1,14 +1,16 @@
-package rabbitmq.utils;
+package rabbitmq.model;
 
 import java.io.*;
 
 public class Message implements Serializable {
     private final String sender;
     private final String messageBody;
+    private final MessageType messageType;
 
-    public Message(String sender, String messageBody) {
+    public Message(String sender, String messageBody, MessageType messageType) {
         this.sender = sender;
         this.messageBody = messageBody;
+        this.messageType = messageType;
     }
 
     public String getSender() {
@@ -17,6 +19,10 @@ public class Message implements Serializable {
 
     public String getMessageBody() {
         return messageBody;
+    }
+
+    public MessageType getMessageType() {
+        return messageType;
     }
 
     public byte[] toByteArray() {

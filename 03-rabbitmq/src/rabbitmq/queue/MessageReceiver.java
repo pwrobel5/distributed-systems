@@ -1,34 +1,28 @@
-package rabbitmq.utils;
+package rabbitmq.queue;
 
 import com.rabbitmq.client.*;
+import rabbitmq.model.Message;
 
 import java.io.IOException;
 
 public class MessageReceiver implements Runnable {
     private final Channel channel;
-    private final String queueName;
     private final java.util.function.Consumer<Message> messageConsumer;
-    private static final String EXCHANGE_NAME = "space_exchange";
+    private final String routingKey;
+    private final String queueName;
 
-    public MessageReceiver(Connection connection, String routingKey, java.util.function.Consumer<Message> messageConsumer) throws IOException {
+    public MessageReceiver(Connection connection, String queueName, String routingKey, java.util.function.Consumer<Message> messageConsumer, String exchangeName) throws IOException {
         this.channel = connection.createChannel();
-        channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.TOPIC);
-
-        this.queueName = channel.queueDeclare().getQueue();
-        channel.queueBind(queueName, EXCHANGE_NAME, routingKey);
-
+        this.routingKey = routingKey;
         this.messageConsumer = messageConsumer;
+        this.queueName = queueName;
+
+        channel.queueDeclare(queueName, false, false, false, null);
+        channel.queueBind(queueName, exchangeName, routingKey);
     }
 
-    public MessageReceiver(Connection connection, String routingKey, String queueName, java.util.function.Consumer<Message> messageConsumer) throws IOException {
-        this.channel = connection.createChannel();
-        channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.TOPIC);
-
-        this.queueName = queueName;
-        channel.queueDeclare(queueName, false, false, false, null);
-        channel.queueBind(queueName, EXCHANGE_NAME, routingKey);
-
-        this.messageConsumer = messageConsumer;
+    public void bindAnotherKey(String newKey, String newExchangeName) throws IOException {
+        channel.queueBind(queueName, newExchangeName, newKey);
     }
 
     @Override
