@@ -33,8 +33,10 @@ public class MessageReceiver implements Runnable {
             Consumer consumer = new DefaultConsumer(channel) {
                 @Override
                 public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
-                    String message = new String(body, StandardCharsets.UTF_8);
-                    System.out.println("Received: " + message);
+                    Message message = Message.fromByteArray(body);
+                    if (message != null) {
+                        System.out.println("Received:\n" + message);
+                    }
                 }
             };
 

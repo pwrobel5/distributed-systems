@@ -17,7 +17,7 @@ public class MessageSender {
         channel.exchangeDeclare(EXCHANGE_NAME, BuiltinExchangeType.TOPIC);
     }
 
-    public void sendMessage(String message) throws IOException {
-        channel.basicPublish(EXCHANGE_NAME, routingKey, null, message.getBytes());
+    public void sendMessage(Message message) throws IOException {
+        channel.basicPublish(EXCHANGE_NAME, routingKey, null, message.toByteArray());
     }
 }

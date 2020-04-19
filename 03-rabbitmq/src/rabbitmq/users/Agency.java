@@ -3,6 +3,7 @@ package rabbitmq.users;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import rabbitmq.utils.Message;
 import rabbitmq.utils.MessageSender;
 import rabbitmq.utils.OrderType;
 
@@ -46,7 +47,7 @@ public class Agency {
                 System.out.print("Enter order id: ");
                 String orderNumber = reader.readLine();
 
-                String message = agencyName + '|' + orderNumber;
+                Message message = new Message(agencyName, orderNumber);
                 senders.get(orderType).sendMessage(message);
                 System.out.println("Order completed!");
             } else if (!input.equalsIgnoreCase(EXIT_COMMAND)) {
