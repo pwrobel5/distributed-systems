@@ -44,3 +44,7 @@ buildNumber.properties
 
 ### AccessKey for API
 AccessKey.java
+
+# Run scripts
+run*.sh
+

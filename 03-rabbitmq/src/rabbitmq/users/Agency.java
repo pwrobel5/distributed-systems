@@ -4,6 +4,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import rabbitmq.utils.Message;
+import rabbitmq.utils.MessageReceiver;
 import rabbitmq.utils.MessageSender;
 import rabbitmq.utils.OrderType;
 
@@ -11,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static rabbitmq.utils.OrderType.determineOrderType;
 
@@ -35,6 +37,14 @@ public class Agency {
         senders.put(OrderType.ORBIT, new MessageSender(connection, "order." + OrderType.ORBIT.toString().toLowerCase()));
         senders.put(OrderType.PEOPLE, new MessageSender(connection, "order." + OrderType.PEOPLE.toString().toLowerCase()));
 
+        Consumer<Message> messageConsumer = message -> {
+            String sender = message.getSender();
+            String body = message.getMessageBody();
+
+            System.out.println("[NOTIFICATION] " + sender + " finished order number " + body);
+        };
+
+        new Thread(new MessageReceiver(connection, "agency." + agencyName.toLowerCase(), messageConsumer)).start();
         System.out.println("Agency registration completed\nWelcome " + agencyName);
 
         String input = "";

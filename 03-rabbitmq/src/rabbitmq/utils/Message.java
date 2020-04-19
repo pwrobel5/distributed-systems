@@ -1,7 +1,5 @@
 package rabbitmq.utils;
 
-import com.sun.corba.se.impl.logging.IORSystemException;
-
 import java.io.*;
 
 public class Message implements Serializable {
@@ -65,6 +63,6 @@ public class Message implements Serializable {
 
     @Override
     public String toString() {
-        return "From: " + sender +"\nBody: " + messageBody;
+        return "From: " + sender + "\nBody: " + messageBody;
     }
 }
