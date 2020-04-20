@@ -8,12 +8,10 @@ import java.io.IOException;
 public class MessageReceiver implements Runnable {
     private final Channel channel;
     private final java.util.function.Consumer<Message> messageConsumer;
-    private final String routingKey;
     private final String queueName;
 
     public MessageReceiver(Connection connection, String queueName, String routingKey, java.util.function.Consumer<Message> messageConsumer, String exchangeName) throws IOException {
         this.channel = connection.createChannel();
-        this.routingKey = routingKey;
         this.messageConsumer = messageConsumer;
         this.queueName = queueName;
 
