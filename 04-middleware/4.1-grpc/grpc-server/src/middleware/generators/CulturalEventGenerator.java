@@ -30,6 +30,12 @@ public class CulturalEventGenerator {
 
     public CulturalEventGenerator(CulturalNewsletterSubscription request) {
         subscribedEvents = new ArrayList<>(request.getTypesList());
+
+        for (CulturalEventType eventType : subscribedEvents) {
+            if (!EVENT_TITLES.containsKey(eventType))
+                throw new IllegalArgumentException();
+        }
+
         timestamp = fromMillis(System.currentTimeMillis());
         random = new Random();
     }

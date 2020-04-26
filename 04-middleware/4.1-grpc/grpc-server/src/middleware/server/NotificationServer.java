@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 public class NotificationServer {
-    private static final Logger logger = Logger.getLogger(NotificationServer.class.getName());
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     private Server server;
 

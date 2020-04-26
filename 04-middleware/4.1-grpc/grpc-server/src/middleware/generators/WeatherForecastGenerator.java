@@ -7,7 +7,10 @@ import middleware.events.City;
 import middleware.events.WeatherForecastNotification;
 import middleware.events.WeatherForecastSubscription;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 
 import static com.google.protobuf.util.Timestamps.fromMillis;
 
@@ -30,6 +33,7 @@ public class WeatherForecastGenerator {
     }
 
     public List<WeatherForecastNotification> getForecast() {
+        int randomMax = FORECAST_TYPES.size() - 1; // the last element in the list is UNRECOGNIZED which is invalid to send
         List<WeatherForecastNotification> result = new LinkedList<>();
         timestamp = Timestamps.add(timestamp, TIME_DURATION);
         for (City city : subscribedCities) {
@@ -37,7 +41,7 @@ public class WeatherForecastGenerator {
             Timestamp forecastHour = Timestamps.add(timestamp, HOUR_DAY_DURATION);
 
             for (int i = 0; i < FORECASTS_FOR_DAY; i++) {
-                WeatherForecastNotification.ForecastType forecastType = FORECAST_TYPES.get(random.nextInt(FORECAST_TYPES.size()));
+                WeatherForecastNotification.ForecastType forecastType = FORECAST_TYPES.get(random.nextInt(randomMax));
                 WeatherForecastNotification.Forecast forecast = WeatherForecastNotification.Forecast.newBuilder().setTime(forecastHour).setType(forecastType).build();
                 forecasts.add(forecast);
 

@@ -1,8 +1,20 @@
-from event_notification_pb2 import CulturalEventType, City
+import signal
+import threading
+import time
+
+import grpc
+
+import event_notification_pb2
+import event_notification_pb2_grpc
 
 WELCOME_TEXT = "gRPC notification client"
 SUBSCRIPTION_MENU_TEXT = "Choose subscription:\n\ta - cultural event subscription\n\tb - weather forecast " \
                          "subscription\n\tc - begin subscription\n\tx - exit\n"
+continue_cultural_stream_reading = True
+continue_weather_stream_reading = True
+cultural_subscription_thread = None
+weather_subscription_thread = None
+channel = None
 
 
 def read_cultural_event_types(types_list=None):
@@ -10,11 +22,11 @@ def read_cultural_event_types(types_list=None):
         types_list = []
 
     print("Available cultural event types, choose one:")
-    valid_values = CulturalEventType.values()
+    valid_values = event_notification_pb2.CulturalEventType.values()
     end_reading = False
 
     while not end_reading:
-        for event_type in CulturalEventType.items():
+        for event_type in event_notification_pb2.CulturalEventType.items():
             print("{} - {}".format(event_type[1], event_type[0].lower()))
         print("x - end")
 
@@ -26,7 +38,7 @@ def read_cultural_event_types(types_list=None):
             if chosen_option not in valid_values:
                 print("Wrong option chosen!")
             else:
-                types_list.append(CulturalEventType.keys()[chosen_option])
+                types_list.append(event_notification_pb2.CulturalEventType.keys()[chosen_option])
 
     return types_list
 
@@ -54,7 +66,7 @@ def read_cities(cities_list=None):
     while not end_reading:
         city_name = input("Enter city name: ")
         city_country = input("Enter city country: ")
-        cities_list.append(City(name=city_name, country=city_country))
+        cities_list.append(event_notification_pb2.City(name=city_name, country=city_country))
 
         read_next = input("Read another? [Y/N]: ")
         if read_next.lower() != "y":
@@ -76,13 +88,130 @@ def read_weather_subscription_details():
         return None
 
 
-def begin_subscription(cultural_subscription_details, weather_subscription_details):
-    pass
+def read_cultural_stream(cultural_subscription_details, stub):
+    global continue_cultural_stream_reading
+
+    failed_connections = 0
+    reconnection_interval = 10
+
+    while continue_cultural_stream_reading:
+        try:
+            cultural_subscription = event_notification_pb2.CulturalNewsletterSubscription(
+                types=cultural_subscription_details)
+            for feature in stub.SubscribeCulturalNewsletter(cultural_subscription):
+                failed_connections = 0
+                reconnection_interval = 10
+                print(feature)
+        except grpc.RpcError as rpc_error_call:
+            code = rpc_error_call.code()
+            print(code)
+            if code == grpc.StatusCode.INVALID_ARGUMENT:
+                print("Invalid cultural subscription arguments sent!")
+                continue_cultural_stream_reading = False
+            elif code == grpc.StatusCode.UNAVAILABLE:
+                failed_connections += 1
+                if failed_connections % 10 == 0:
+                    reconnection_interval /= 2
+                    reconnection_interval = max(reconnection_interval, 1)
+
+                print("Cultural newsletter service unavailable, trying to reconnect...")
+                time.sleep(reconnection_interval)
+            elif code == grpc.StatusCode.UNIMPLEMENTED:
+                print("Unimplemented cultural newsletter on server")
+                continue_cultural_stream_reading = False
+            else:
+                print("Unknown error")
+                continue_cultural_stream_reading = False
+
+    print("Ending cultural subscription")
+
+
+def read_weather_stream(weather_subscription_details, stub):
+    global continue_weather_stream_reading
+
+    failed_connections = 0
+    reconnection_interval = 10
+
+    while continue_weather_stream_reading:
+        try:
+            weather_subscription = event_notification_pb2.WeatherForecastSubscription(
+                cities=weather_subscription_details)
+            for forecast in stub.SubscribeWeatherForecast(weather_subscription):
+                print(forecast)
+        except grpc.RpcError as rpc_error_call:
+            code = rpc_error_call.code()
+            print(code)
+            if code == grpc.StatusCode.INVALID_ARGUMENT:
+                print("Invalid weather forecast arguments sent!")
+                continue_weather_stream_reading = False
+            elif code == grpc.StatusCode.UNAVAILABLE:
+                failed_connections += 1
+                if failed_connections % 10 == 0:
+                    reconnection_interval /= 2
+                    reconnection_interval = max(reconnection_interval, 1)
+
+                print("Weather forecast service unavailable, trying to reconnect...")
+                time.sleep(reconnection_interval)
+            elif code == grpc.StatusCode.UNIMPLEMENTED:
+                print("Unimplemented weather forecast on server")
+                continue_weather_stream_reading = False
+            else:
+                print("Unknown error")
+                continue_weather_stream_reading = False
+
+    print("Ending weather subscription")
+
+
+# separate threads for reading from streams are needed, ref: https://github.com/grpc/grpc/issues/9280
+def begin_subscription(cultural_subscription_details, weather_subscription_details, host="localhost:50055"):
+    global channel
+    channel = grpc.insecure_channel(host)
+
+    global cultural_subscription_thread, weather_subscription_thread
+
+    stub = event_notification_pb2_grpc.NotificationsStub(channel)
+    if cultural_subscription_details is not None:
+        cultural_subscription_thread = threading.Thread(target=read_cultural_stream,
+                                                        args=(cultural_subscription_details, stub))
+        cultural_subscription_thread.start()
+
+    if weather_subscription_details is not None:
+        weather_subscription_thread = threading.Thread(target=read_weather_stream,
+                                                       args=(weather_subscription_details, stub))
+        weather_subscription_thread.start()
+
+    if cultural_subscription_thread is not None:
+        cultural_subscription_thread.join()
+    if weather_subscription_thread is not None:
+        weather_subscription_thread.join()
+
+    channel.close()
+
+
+def sigint_handler(signum, frame):
+    print("Received SIGINT signal")
+    global continue_cultural_stream_reading, continue_weather_stream_reading
+    continue_cultural_stream_reading = False
+    continue_weather_stream_reading = False
+
+    if channel is not None:
+        print("Closing channel")
+        channel.close()
+
+    if cultural_subscription_thread is not None:
+        cultural_subscription_thread.join()
+
+    if weather_subscription_thread is not None:
+        weather_subscription_thread.join()
+
+    exit(0)
 
 
 def main():
     print(WELCOME_TEXT)
     go_next = False
+
+    signal.signal(signal.SIGINT, sigint_handler)
 
     cultural_subscription_details = None
     weather_subscription_details = None
@@ -101,7 +230,12 @@ def main():
         else:
             print("Invalid option chosen!")
 
-    begin_subscription(cultural_subscription_details, weather_subscription_details)
+    host = "localhost:50055"
+    default_connection = input("Connect to localhost:50055? [Y/N]: ")
+    if default_connection.lower() != "y":
+        host = input("Enter host name in form address:port: ")
+
+    begin_subscription(cultural_subscription_details, weather_subscription_details, host)
 
 
 if __name__ == '__main__':
