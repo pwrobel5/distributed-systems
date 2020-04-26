@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package events;
+
+option java_package = "middleware.events";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+
+enum CulturalEventType {
+  CONCERT = 0;
+  EXHIBITION = 1;
+  THEATER_PLAY = 2;
+  FILM_FESTIVAL = 3;
+}
+
+message CulturalNewsletterSubscription {
+  repeated CulturalEventType types = 1;
+}
+
+message CulturalEventNotification {
+  string title = 1;
+  CulturalEventType type = 2;
+  google.protobuf.Timestamp date = 3;
+}
+
+message City {
+  string name = 1;
+  string country = 2;
+}
+
+message WeatherForecastNotification {
+
+  enum ForecastType {
+    SNOW = 0;
+    SUNNY = 1;
+    RAIN = 2;
+    CLOUDY = 3;
+    FOGGY = 4;
+  }
+
+  message Forecast {
+    ForecastType type = 1;
+    google.protobuf.Timestamp time = 2;
+  }
+
+  City city = 1;
+  repeated Forecast forecastList = 2;
+  google.protobuf.Timestamp day = 3;
+}
+
+message WeatherForecastSubscription {
+  repeated City cities = 1;
+}
+
+service Notifications {
+  rpc SubscribeCulturalNewsletter (CulturalNewsletterSubscription) returns (stream CulturalEventNotification) {}
+  rpc SubscribeWeatherForecast (WeatherForecastSubscription) returns (stream WeatherForecastNotification) {}
+}
+
