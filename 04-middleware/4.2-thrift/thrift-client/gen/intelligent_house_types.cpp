@@ -82,9 +82,9 @@ void ReplyStatus::__set_status(const Status::type val) {
   this->status = val;
 }
 
-void ReplyStatus::__set_errorDescription(const std::string& val) {
-  this->errorDescription = val;
-__isset.errorDescription = true;
+void ReplyStatus::__set_message(const std::string& val) {
+  this->message = val;
+__isset.message = true;
 }
 std::ostream& operator<<(std::ostream& out, const ReplyStatus& obj)
 {
@@ -126,8 +126,8 @@ uint32_t ReplyStatus::read(::apache::thrift::protocol::TProtocol* iprot) {
         break;
       case 2:
         if (ftype == ::apache::thrift::protocol::T_STRING) {
-          xfer += iprot->readString(this->errorDescription);
-          this->__isset.errorDescription = true;
+          xfer += iprot->readString(this->message);
+          this->__isset.message = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -153,9 +153,9 @@ uint32_t ReplyStatus::write(::apache::thrift::protocol::TProtocol* oprot) const 
   xfer += oprot->writeI32((int32_t)this->status);
   xfer += oprot->writeFieldEnd();
 
-  if (this->__isset.errorDescription) {
-    xfer += oprot->writeFieldBegin("errorDescription", ::apache::thrift::protocol::T_STRING, 2);
-    xfer += oprot->writeString(this->errorDescription);
+  if (this->__isset.message) {
+    xfer += oprot->writeFieldBegin("message", ::apache::thrift::protocol::T_STRING, 2);
+    xfer += oprot->writeString(this->message);
     xfer += oprot->writeFieldEnd();
   }
   xfer += oprot->writeFieldStop();
@@ -166,18 +166,18 @@ uint32_t ReplyStatus::write(::apache::thrift::protocol::TProtocol* oprot) const 
 void swap(ReplyStatus &a, ReplyStatus &b) {
   using ::std::swap;
   swap(a.status, b.status);
-  swap(a.errorDescription, b.errorDescription);
+  swap(a.message, b.message);
   swap(a.__isset, b.__isset);
 }
 
 ReplyStatus::ReplyStatus(const ReplyStatus& other1) {
   status = other1.status;
-  errorDescription = other1.errorDescription;
+  message = other1.message;
   __isset = other1.__isset;
 }
 ReplyStatus& ReplyStatus::operator=(const ReplyStatus& other2) {
   status = other2.status;
-  errorDescription = other2.errorDescription;
+  message = other2.message;
   __isset = other2.__isset;
   return *this;
 }
@@ -185,7 +185,7 @@ void ReplyStatus::printTo(std::ostream& out) const {
   using ::apache::thrift::to_string;
   out << "ReplyStatus(";
   out << "status=" << to_string(status);
-  out << ", " << "errorDescription="; (__isset.errorDescription ? (out << to_string(errorDescription)) : (out << "<null>"));
+  out << ", " << "message="; (__isset.message ? (out << to_string(message)) : (out << "<null>"));
   out << ")";
 }
 

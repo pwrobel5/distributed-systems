@@ -290,4 +290,6 @@ CTestTestfile.cmake
 _deps
 *.cbp
 
+*.jpg
+
 

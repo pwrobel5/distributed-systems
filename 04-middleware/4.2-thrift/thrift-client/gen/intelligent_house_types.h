@@ -57,9 +57,9 @@ class InvalidDateFormat;
 class NoData;
 
 typedef struct _ReplyStatus__isset {
-  _ReplyStatus__isset() : status(false), errorDescription(false) {}
+  _ReplyStatus__isset() : status(false), message(false) {}
   bool status :1;
-  bool errorDescription :1;
+  bool message :1;
 } _ReplyStatus__isset;
 
 class ReplyStatus : public virtual ::apache::thrift::TBase {
@@ -67,26 +67,26 @@ class ReplyStatus : public virtual ::apache::thrift::TBase {
 
   ReplyStatus(const ReplyStatus&);
   ReplyStatus& operator=(const ReplyStatus&);
-  ReplyStatus() : status((Status::type)0), errorDescription() {
+  ReplyStatus() : status((Status::type)0), message() {
   }
 
   virtual ~ReplyStatus() noexcept;
   Status::type status;
-  std::string errorDescription;
+  std::string message;
 
   _ReplyStatus__isset __isset;
 
   void __set_status(const Status::type val);
 
-  void __set_errorDescription(const std::string& val);
+  void __set_message(const std::string& val);
 
   bool operator == (const ReplyStatus & rhs) const
   {
     if (!(status == rhs.status))
       return false;
-    if (__isset.errorDescription != rhs.__isset.errorDescription)
+    if (__isset.message != rhs.__isset.message)
       return false;
-    else if (__isset.errorDescription && !(errorDescription == rhs.errorDescription))
+    else if (__isset.message && !(message == rhs.message))
       return false;
     return true;
   }

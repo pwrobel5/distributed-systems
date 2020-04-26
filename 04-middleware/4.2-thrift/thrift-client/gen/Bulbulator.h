@@ -96,8 +96,9 @@ class Bulbulator_makeBulbulbul_pargs {
 };
 
 typedef struct _Bulbulator_makeBulbulbul_result__isset {
-  _Bulbulator_makeBulbulbul_result__isset() : success(false) {}
+  _Bulbulator_makeBulbulbul_result__isset() : success(false), ex(false) {}
   bool success :1;
+  bool ex :1;
 } _Bulbulator_makeBulbulbul_result__isset;
 
 class Bulbulator_makeBulbulbul_result {
@@ -110,14 +111,19 @@ class Bulbulator_makeBulbulbul_result {
 
   virtual ~Bulbulator_makeBulbulbul_result() noexcept;
   ReplyStatus success;
+  NoData ex;
 
   _Bulbulator_makeBulbulbul_result__isset __isset;
 
   void __set_success(const ReplyStatus& val);
 
+  void __set_ex(const NoData& val);
+
   bool operator == (const Bulbulator_makeBulbulbul_result & rhs) const
   {
     if (!(success == rhs.success))
+      return false;
+    if (!(ex == rhs.ex))
       return false;
     return true;
   }
@@ -133,8 +139,9 @@ class Bulbulator_makeBulbulbul_result {
 };
 
 typedef struct _Bulbulator_makeBulbulbul_presult__isset {
-  _Bulbulator_makeBulbulbul_presult__isset() : success(false) {}
+  _Bulbulator_makeBulbulbul_presult__isset() : success(false), ex(false) {}
   bool success :1;
+  bool ex :1;
 } _Bulbulator_makeBulbulbul_presult__isset;
 
 class Bulbulator_makeBulbulbul_presult {
@@ -143,6 +150,7 @@ class Bulbulator_makeBulbulbul_presult {
 
   virtual ~Bulbulator_makeBulbulbul_presult() noexcept;
   ReplyStatus* success;
+  NoData ex;
 
   _Bulbulator_makeBulbulbul_presult__isset __isset;
 

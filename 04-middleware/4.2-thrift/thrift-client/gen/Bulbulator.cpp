@@ -100,6 +100,14 @@ uint32_t Bulbulator_makeBulbulbul_result::read(::apache::thrift::protocol::TProt
           xfer += iprot->skip(ftype);
         }
         break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->ex.read(iprot);
+          this->__isset.ex = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
       default:
         xfer += iprot->skip(ftype);
         break;
@@ -121,6 +129,10 @@ uint32_t Bulbulator_makeBulbulbul_result::write(::apache::thrift::protocol::TPro
   if (this->__isset.success) {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_STRUCT, 0);
     xfer += this->success.write(oprot);
+    xfer += oprot->writeFieldEnd();
+  } else if (this->__isset.ex) {
+    xfer += oprot->writeFieldBegin("ex", ::apache::thrift::protocol::T_STRUCT, 1);
+    xfer += this->ex.write(oprot);
     xfer += oprot->writeFieldEnd();
   }
   xfer += oprot->writeFieldStop();
@@ -158,6 +170,14 @@ uint32_t Bulbulator_makeBulbulbul_presult::read(::apache::thrift::protocol::TPro
         if (ftype == ::apache::thrift::protocol::T_STRUCT) {
           xfer += (*(this->success)).read(iprot);
           this->__isset.success = true;
+        } else {
+          xfer += iprot->skip(ftype);
+        }
+        break;
+      case 1:
+        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
+          xfer += this->ex.read(iprot);
+          this->__isset.ex = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -228,6 +248,9 @@ void BulbulatorClient::recv_makeBulbulbul(ReplyStatus& _return)
     // _return pointer has now been filled
     return;
   }
+  if (result.__isset.ex) {
+    throw result.ex;
+  }
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "makeBulbulbul failed: unknown result");
 }
 
@@ -266,6 +289,9 @@ void BulbulatorProcessor::process_makeBulbulbul(int32_t seqid, ::apache::thrift:
   try {
     iface_->makeBulbulbul(result.success);
     result.__isset.success = true;
+  } catch (NoData &ex) {
+    result.ex = ex;
+    result.__isset.ex = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
       this->eventHandler_->handlerError(ctx, "Bulbulator.makeBulbulbul");
@@ -373,6 +399,10 @@ void BulbulatorConcurrentClient::recv_makeBulbulbul(ReplyStatus& _return, const 
         // _return pointer has now been filled
         sentry.commit();
         return;
+      }
+      if (result.__isset.ex) {
+        sentry.commit();
+        throw result.ex;
       }
       // in a bad state, don't commit
       throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "makeBulbulbul failed: unknown result");

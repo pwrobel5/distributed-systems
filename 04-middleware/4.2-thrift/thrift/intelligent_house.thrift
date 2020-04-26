@@ -14,7 +14,7 @@ enum Status {
 
 struct ReplyStatus {
   1: Status status,
-  2: optional string errorDescription
+  2: optional string message
 }
 
 struct Image {
@@ -43,7 +43,7 @@ service Thermometer extends Device {
 }
 
 service Bulbulator extends Device {
-  ReplyStatus makeBulbulbul()
+  ReplyStatus makeBulbulbul() throws (1: NoData ex)
 }
 
 service CCTV extends Device {
