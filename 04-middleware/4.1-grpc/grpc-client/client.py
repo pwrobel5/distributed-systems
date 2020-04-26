@@ -1,3 +1,5 @@
+import datetime
+import logging
 import signal
 import threading
 import time
@@ -15,6 +17,10 @@ continue_weather_stream_reading = True
 cultural_subscription_thread = None
 weather_subscription_thread = None
 channel = None
+
+
+def timestamp_to_datetime(value):
+    return datetime.datetime.fromtimestamp(value.seconds)
 
 
 def read_cultural_event_types(types_list=None):
@@ -94,19 +100,21 @@ def read_cultural_stream(cultural_subscription_details, stub):
     failed_connections = 0
     reconnection_interval = 10
 
+    logging.info("Starting cultural events stream thread")
+
     while continue_cultural_stream_reading:
         try:
             cultural_subscription = event_notification_pb2.CulturalNewsletterSubscription(
                 types=cultural_subscription_details)
-            for feature in stub.SubscribeCulturalNewsletter(cultural_subscription):
+            for notification in stub.SubscribeCulturalNewsletter(cultural_subscription):
                 failed_connections = 0
                 reconnection_interval = 10
-                print(feature)
+                logging.info("Cultural event notification received")
+                print_cultural_event_notification(notification)
         except grpc.RpcError as rpc_error_call:
             code = rpc_error_call.code()
-            print(code)
             if code == grpc.StatusCode.INVALID_ARGUMENT:
-                print("Invalid cultural subscription arguments sent!")
+                logging.error("Invalid cultural subscription arguments sent!")
                 continue_cultural_stream_reading = False
             elif code == grpc.StatusCode.UNAVAILABLE:
                 failed_connections += 1
@@ -114,16 +122,29 @@ def read_cultural_stream(cultural_subscription_details, stub):
                     reconnection_interval /= 2
                     reconnection_interval = max(reconnection_interval, 1)
 
-                print("Cultural newsletter service unavailable, trying to reconnect...")
+                logging.error("Cultural newsletter service unavailable, trying to reconnect...")
                 time.sleep(reconnection_interval)
             elif code == grpc.StatusCode.UNIMPLEMENTED:
-                print("Unimplemented cultural newsletter on server")
+                logging.error("Unimplemented cultural newsletter on server")
+                continue_cultural_stream_reading = False
+            elif code == grpc.StatusCode.CANCELLED:
+                logging.info("Cancelled connection")
                 continue_cultural_stream_reading = False
             else:
-                print("Unknown error")
+                logging.error("Unknown error: " + str(code))
                 continue_cultural_stream_reading = False
 
-    print("Ending cultural subscription")
+    logging.info("Ending cultural subscription")
+
+
+def print_cultural_event_notification(notification):
+    res_string = "Cultural event"
+    event_type = event_notification_pb2.CulturalEventType.keys()[event_notification_pb2.CulturalEventType.values()
+        .index(notification.type)]
+    res_string += "\n\tTitle: {}\n\tType: {}\n\tDate: {}\n".format(notification.title, event_type,
+                                                                   timestamp_to_datetime(notification.date).strftime(
+                                                                       "%Y-%m-%d %H:%M"))
+    print(res_string + "\n")
 
 
 def read_weather_stream(weather_subscription_details, stub):
@@ -132,17 +153,19 @@ def read_weather_stream(weather_subscription_details, stub):
     failed_connections = 0
     reconnection_interval = 10
 
+    logging.info("Starting weather stream thread")
+
     while continue_weather_stream_reading:
         try:
             weather_subscription = event_notification_pb2.WeatherForecastSubscription(
                 cities=weather_subscription_details)
             for forecast in stub.SubscribeWeatherForecast(weather_subscription):
-                print(forecast)
+                logging.info("Received weather forecast")
+                print_weather_forecast(forecast)
         except grpc.RpcError as rpc_error_call:
             code = rpc_error_call.code()
-            print(code)
             if code == grpc.StatusCode.INVALID_ARGUMENT:
-                print("Invalid weather forecast arguments sent!")
+                logging.error("Invalid weather forecast arguments sent!")
                 continue_weather_stream_reading = False
             elif code == grpc.StatusCode.UNAVAILABLE:
                 failed_connections += 1
@@ -150,16 +173,31 @@ def read_weather_stream(weather_subscription_details, stub):
                     reconnection_interval /= 2
                     reconnection_interval = max(reconnection_interval, 1)
 
-                print("Weather forecast service unavailable, trying to reconnect...")
+                logging.error("Weather forecast service unavailable, trying to reconnect...")
                 time.sleep(reconnection_interval)
             elif code == grpc.StatusCode.UNIMPLEMENTED:
-                print("Unimplemented weather forecast on server")
+                logging.error("Unimplemented weather forecast on server")
+                continue_weather_stream_reading = False
+            elif code == grpc.StatusCode.CANCELLED:
+                logging.info("Cancelled connection")
                 continue_weather_stream_reading = False
             else:
-                print("Unknown error")
+                logging.error("Unknown error: " + str(code))
                 continue_weather_stream_reading = False
 
-    print("Ending weather subscription")
+    logging.info("Ending weather subscription")
+
+
+def print_weather_forecast(forecast):
+    res_string = "Weather forecast"
+    res_string += "\n\tCity: {}, {}".format(forecast.city.name, forecast.city.country)
+    res_string += "\n\tDate: {}".format(timestamp_to_datetime(forecast.day).strftime("%Y-%m-%d"))
+    for forecast_point in forecast.forecastList:
+        forecast_type = event_notification_pb2.ForecastType.keys()[
+            event_notification_pb2.ForecastType.values().index(forecast_point.type)]
+        res_string += "\n\t\tHour: {}: {}".format(timestamp_to_datetime(forecast_point.time).strftime("%H:%M"),
+                                                  forecast_type)
+    print(res_string + "\n")
 
 
 # separate threads for reading from streams are needed, ref: https://github.com/grpc/grpc/issues/9280
@@ -189,13 +227,13 @@ def begin_subscription(cultural_subscription_details, weather_subscription_detai
 
 
 def sigint_handler(signum, frame):
-    print("Received SIGINT signal")
+    logging.info("Received SIGINT signal")
     global continue_cultural_stream_reading, continue_weather_stream_reading
     continue_cultural_stream_reading = False
     continue_weather_stream_reading = False
 
     if channel is not None:
-        print("Closing channel")
+        logging.info("Closing channel")
         channel.close()
 
     if cultural_subscription_thread is not None:
@@ -211,6 +249,8 @@ def main():
     print(WELCOME_TEXT)
     go_next = False
 
+    logging.root.setLevel(logging.NOTSET)
+    logging.basicConfig(level=logging.NOTSET)
     signal.signal(signal.SIGINT, sigint_handler)
 
     cultural_subscription_details = None

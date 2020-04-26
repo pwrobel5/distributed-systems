@@ -1,5 +1,6 @@
 package middleware.services;
 
+import io.grpc.Context;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import middleware.events.*;
@@ -19,7 +20,7 @@ public class NotificationsImpl extends NotificationsGrpc.NotificationsImplBase {
             CulturalEventGenerator generator = new CulturalEventGenerator(request);
             logger.info("New client connection on Cultural Newsletter");
 
-            while (true) {
+            while (!Context.current().isCancelled()) {
                 CulturalEventNotification nextNotification = generator.getEvent();
                 responseObserver.onNext(nextNotification);
                 logger.info("Sent cultural newsletter");
@@ -30,6 +31,8 @@ public class NotificationsImpl extends NotificationsGrpc.NotificationsImplBase {
                     logger.warning("Interrupted sleep");
                 }
             }
+            responseObserver.onCompleted();
+            logger.info("Cultural newsletter subscription cancelled");
         } catch (IllegalArgumentException e) {
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Invalid arguments sent!").asRuntimeException());
             logger.warning("Connection to client failed - incorrect request");
@@ -41,7 +44,7 @@ public class NotificationsImpl extends NotificationsGrpc.NotificationsImplBase {
         WeatherForecastGenerator generator = new WeatherForecastGenerator(request);
         logger.info("New client connection on Weather Forecast");
 
-        while (true) {
+        while (!Context.current().isCancelled()) {
             List<WeatherForecastNotification> nextNotificationsList = generator.getForecast();
             for (WeatherForecastNotification nextNotification : nextNotificationsList) {
                 responseObserver.onNext(nextNotification);
@@ -54,5 +57,7 @@ public class NotificationsImpl extends NotificationsGrpc.NotificationsImplBase {
                 logger.warning("Interrupted sleep");
             }
         }
+        responseObserver.onCompleted();
+        logger.info("Weather forecast subscription cancelled");
     }
 }

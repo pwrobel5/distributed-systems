@@ -29,16 +29,15 @@ message City {
   string country = 2;
 }
 
-message WeatherForecastNotification {
-
-  enum ForecastType {
+enum ForecastType {
     SNOW = 0;
     SUNNY = 1;
     RAIN = 2;
     CLOUDY = 3;
     FOGGY = 4;
-  }
+}
 
+message WeatherForecastNotification {
   message Forecast {
     ForecastType type = 1;
     google.protobuf.Timestamp time = 2;

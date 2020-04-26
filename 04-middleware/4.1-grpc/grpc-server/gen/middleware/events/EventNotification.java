@@ -60,26 +60,26 @@ public final class EventNotification {
       "Notification\022\r\n\005title\030\001 \001(\t\022\'\n\004type\030\002 \001(" +
       "\0162\031.events.CulturalEventType\022(\n\004date\030\003 \001" +
       "(\0132\032.google.protobuf.Timestamp\"%\n\004City\022\014" +
-      "\n\004name\030\001 \001(\t\022\017\n\007country\030\002 \001(\t\"\342\002\n\033Weathe" +
+      "\n\004name\030\001 \001(\t\022\017\n\007country\030\002 \001(\t\"\200\002\n\033Weathe" +
       "rForecastNotification\022\032\n\004city\030\001 \001(\0132\014.ev" +
       "ents.City\022B\n\014forecastList\030\002 \003(\0132,.events" +
       ".WeatherForecastNotification.Forecast\022\'\n" +
-      "\003day\030\003 \001(\0132\032.google.protobuf.Timestamp\032t" +
-      "\n\010Forecast\022>\n\004type\030\001 \001(\01620.events.Weathe" +
-      "rForecastNotification.ForecastType\022(\n\004ti" +
-      "me\030\002 \001(\0132\032.google.protobuf.Timestamp\"D\n\014" +
+      "\003day\030\003 \001(\0132\032.google.protobuf.Timestamp\032X" +
+      "\n\010Forecast\022\"\n\004type\030\001 \001(\0162\024.events.Foreca" +
+      "stType\022(\n\004time\030\002 \001(\0132\032.google.protobuf.T" +
+      "imestamp\";\n\033WeatherForecastSubscription\022" +
+      "\034\n\006cities\030\001 \003(\0132\014.events.City*U\n\021Cultura" +
+      "lEventType\022\013\n\007CONCERT\020\000\022\016\n\nEXHIBITION\020\001\022" +
+      "\020\n\014THEATER_PLAY\020\002\022\021\n\rFILM_FESTIVAL\020\003*D\n\014" +
       "ForecastType\022\010\n\004SNOW\020\000\022\t\n\005SUNNY\020\001\022\010\n\004RAI" +
-      "N\020\002\022\n\n\006CLOUDY\020\003\022\t\n\005FOGGY\020\004\";\n\033WeatherFor" +
-      "ecastSubscription\022\034\n\006cities\030\001 \003(\0132\014.even" +
-      "ts.City*U\n\021CulturalEventType\022\013\n\007CONCERT\020" +
-      "\000\022\016\n\nEXHIBITION\020\001\022\020\n\014THEATER_PLAY\020\002\022\021\n\rF" +
-      "ILM_FESTIVAL\020\0032\347\001\n\rNotifications\022l\n\033Subs" +
-      "cribeCulturalNewsletter\022&.events.Cultura" +
-      "lNewsletterSubscription\032!.events.Cultura" +
-      "lEventNotification\"\0000\001\022h\n\030SubscribeWeath" +
-      "erForecast\022#.events.WeatherForecastSubsc" +
-      "ription\032#.events.WeatherForecastNotifica" +
-      "tion\"\0000\001B\025\n\021middleware.eventsP\001b\006proto3"
+      "N\020\002\022\n\n\006CLOUDY\020\003\022\t\n\005FOGGY\020\0042\347\001\n\rNotificat" +
+      "ions\022l\n\033SubscribeCulturalNewsletter\022&.ev" +
+      "ents.CulturalNewsletterSubscription\032!.ev" +
+      "ents.CulturalEventNotification\"\0000\001\022h\n\030Su" +
+      "bscribeWeatherForecast\022#.events.WeatherF" +
+      "orecastSubscription\032#.events.WeatherFore" +
+      "castNotification\"\0000\001B\025\n\021middleware.event" +
+      "sP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,

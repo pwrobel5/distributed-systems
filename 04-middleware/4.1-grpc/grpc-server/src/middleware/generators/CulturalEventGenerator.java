@@ -20,7 +20,7 @@ public class CulturalEventGenerator {
 
     private static final Map<CulturalEventType, List<String>> EVENT_TITLES = Map.ofEntries(
             entry(CulturalEventType.CONCERT, new ArrayList<>(Arrays.asList("Philharmonic concert", "Sacrum Profanum Festival", "Underground band concert"))),
-            entry(CulturalEventType.EXHIBITION, new ArrayList<>(Arrays.asList("Modern Art Exhibition", "World Press Photo", "Vernissage of famous artist"))),
+            entry(CulturalEventType.EXHIBITION, new ArrayList<>(Arrays.asList("Modern Art Exhibition", "World Press Photo", "Vernissage of a famous artist"))),
             entry(CulturalEventType.THEATER_PLAY, new ArrayList<>(Arrays.asList("Wesele", "Romeo and Juliet", "Lady Macbeth"))),
             entry(CulturalEventType.FILM_FESTIVAL, new ArrayList<>(Arrays.asList("Off film festival", "Mountain film festival", "Festival of silent movies")))
     );

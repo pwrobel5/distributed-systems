@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='events',
   syntax='proto3',
   serialized_options=b'\n\021middleware.eventsP\001',
-  serialized_pb=b'\n\x18\x65vent_notification.proto\x12\x06\x65vents\x1a\x1fgoogle/protobuf/timestamp.proto\"J\n\x1e\x43ulturalNewsletterSubscription\x12(\n\x05types\x18\x01 \x03(\x0e\x32\x19.events.CulturalEventType\"}\n\x19\x43ulturalEventNotification\x12\r\n\x05title\x18\x01 \x01(\t\x12\'\n\x04type\x18\x02 \x01(\x0e\x32\x19.events.CulturalEventType\x12(\n\x04\x64\x61te\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"%\n\x04\x43ity\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x02 \x01(\t\"\xe2\x02\n\x1bWeatherForecastNotification\x12\x1a\n\x04\x63ity\x18\x01 \x01(\x0b\x32\x0c.events.City\x12\x42\n\x0c\x66orecastList\x18\x02 \x03(\x0b\x32,.events.WeatherForecastNotification.Forecast\x12\'\n\x03\x64\x61y\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1at\n\x08\x46orecast\x12>\n\x04type\x18\x01 \x01(\x0e\x32\x30.events.WeatherForecastNotification.ForecastType\x12(\n\x04time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"D\n\x0c\x46orecastType\x12\x08\n\x04SNOW\x10\x00\x12\t\n\x05SUNNY\x10\x01\x12\x08\n\x04RAIN\x10\x02\x12\n\n\x06\x43LOUDY\x10\x03\x12\t\n\x05\x46OGGY\x10\x04\";\n\x1bWeatherForecastSubscription\x12\x1c\n\x06\x63ities\x18\x01 \x03(\x0b\x32\x0c.events.City*U\n\x11\x43ulturalEventType\x12\x0b\n\x07\x43ONCERT\x10\x00\x12\x0e\n\nEXHIBITION\x10\x01\x12\x10\n\x0cTHEATER_PLAY\x10\x02\x12\x11\n\rFILM_FESTIVAL\x10\x03\x32\xe7\x01\n\rNotifications\x12l\n\x1bSubscribeCulturalNewsletter\x12&.events.CulturalNewsletterSubscription\x1a!.events.CulturalEventNotification\"\x00\x30\x01\x12h\n\x18SubscribeWeatherForecast\x12#.events.WeatherForecastSubscription\x1a#.events.WeatherForecastNotification\"\x00\x30\x01\x42\x15\n\x11middleware.eventsP\x01\x62\x06proto3'
+  serialized_pb=b'\n\x18\x65vent_notification.proto\x12\x06\x65vents\x1a\x1fgoogle/protobuf/timestamp.proto\"J\n\x1e\x43ulturalNewsletterSubscription\x12(\n\x05types\x18\x01 \x03(\x0e\x32\x19.events.CulturalEventType\"}\n\x19\x43ulturalEventNotification\x12\r\n\x05title\x18\x01 \x01(\t\x12\'\n\x04type\x18\x02 \x01(\x0e\x32\x19.events.CulturalEventType\x12(\n\x04\x64\x61te\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"%\n\x04\x43ity\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0f\n\x07\x63ountry\x18\x02 \x01(\t\"\x80\x02\n\x1bWeatherForecastNotification\x12\x1a\n\x04\x63ity\x18\x01 \x01(\x0b\x32\x0c.events.City\x12\x42\n\x0c\x66orecastList\x18\x02 \x03(\x0b\x32,.events.WeatherForecastNotification.Forecast\x12\'\n\x03\x64\x61y\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x1aX\n\x08\x46orecast\x12\"\n\x04type\x18\x01 \x01(\x0e\x32\x14.events.ForecastType\x12(\n\x04time\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\";\n\x1bWeatherForecastSubscription\x12\x1c\n\x06\x63ities\x18\x01 \x03(\x0b\x32\x0c.events.City*U\n\x11\x43ulturalEventType\x12\x0b\n\x07\x43ONCERT\x10\x00\x12\x0e\n\nEXHIBITION\x10\x01\x12\x10\n\x0cTHEATER_PLAY\x10\x02\x12\x11\n\rFILM_FESTIVAL\x10\x03*D\n\x0c\x46orecastType\x12\x08\n\x04SNOW\x10\x00\x12\t\n\x05SUNNY\x10\x01\x12\x08\n\x04RAIN\x10\x02\x12\n\n\x06\x43LOUDY\x10\x03\x12\t\n\x05\x46OGGY\x10\x04\x32\xe7\x01\n\rNotifications\x12l\n\x1bSubscribeCulturalNewsletter\x12&.events.CulturalNewsletterSubscription\x1a!.events.CulturalEventNotification\"\x00\x30\x01\x12h\n\x18SubscribeWeatherForecast\x12#.events.WeatherForecastSubscription\x1a#.events.WeatherForecastNotification\"\x00\x30\x01\x42\x15\n\x11middleware.eventsP\x01\x62\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_timestamp__pb2.DESCRIPTOR,])
 
@@ -49,21 +49,15 @@ _CULTURALEVENTTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=729,
-  serialized_end=814,
+  serialized_start=631,
+  serialized_end=716,
 )
 _sym_db.RegisterEnumDescriptor(_CULTURALEVENTTYPE)
 
 CulturalEventType = enum_type_wrapper.EnumTypeWrapper(_CULTURALEVENTTYPE)
-CONCERT = 0
-EXHIBITION = 1
-THEATER_PLAY = 2
-FILM_FESTIVAL = 3
-
-
-_WEATHERFORECASTNOTIFICATION_FORECASTTYPE = _descriptor.EnumDescriptor(
+_FORECASTTYPE = _descriptor.EnumDescriptor(
   name='ForecastType',
-  full_name='events.WeatherForecastNotification.ForecastType',
+  full_name='events.ForecastType',
   filename=None,
   file=DESCRIPTOR,
   values=[
@@ -90,10 +84,22 @@ _WEATHERFORECASTNOTIFICATION_FORECASTTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=598,
-  serialized_end=666,
+  serialized_start=718,
+  serialized_end=786,
 )
-_sym_db.RegisterEnumDescriptor(_WEATHERFORECASTNOTIFICATION_FORECASTTYPE)
+_sym_db.RegisterEnumDescriptor(_FORECASTTYPE)
+
+ForecastType = enum_type_wrapper.EnumTypeWrapper(_FORECASTTYPE)
+CONCERT = 0
+EXHIBITION = 1
+THEATER_PLAY = 2
+FILM_FESTIVAL = 3
+SNOW = 0
+SUNNY = 1
+RAIN = 2
+CLOUDY = 3
+FOGGY = 4
+
 
 
 _CULTURALNEWSLETTERSUBSCRIPTION = _descriptor.Descriptor(
@@ -244,7 +250,7 @@ _WEATHERFORECASTNOTIFICATION_FORECAST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=480,
-  serialized_end=596,
+  serialized_end=568,
 )
 
 _WEATHERFORECASTNOTIFICATION = _descriptor.Descriptor(
@@ -280,7 +286,6 @@ _WEATHERFORECASTNOTIFICATION = _descriptor.Descriptor(
   ],
   nested_types=[_WEATHERFORECASTNOTIFICATION_FORECAST, ],
   enum_types=[
-    _WEATHERFORECASTNOTIFICATION_FORECASTTYPE,
   ],
   serialized_options=None,
   is_extendable=False,
@@ -289,7 +294,7 @@ _WEATHERFORECASTNOTIFICATION = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=312,
-  serialized_end=666,
+  serialized_end=568,
 )
 
 
@@ -319,20 +324,19 @@ _WEATHERFORECASTSUBSCRIPTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=668,
-  serialized_end=727,
+  serialized_start=570,
+  serialized_end=629,
 )
 
 _CULTURALNEWSLETTERSUBSCRIPTION.fields_by_name['types'].enum_type = _CULTURALEVENTTYPE
 _CULTURALEVENTNOTIFICATION.fields_by_name['type'].enum_type = _CULTURALEVENTTYPE
 _CULTURALEVENTNOTIFICATION.fields_by_name['date'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
-_WEATHERFORECASTNOTIFICATION_FORECAST.fields_by_name['type'].enum_type = _WEATHERFORECASTNOTIFICATION_FORECASTTYPE
+_WEATHERFORECASTNOTIFICATION_FORECAST.fields_by_name['type'].enum_type = _FORECASTTYPE
 _WEATHERFORECASTNOTIFICATION_FORECAST.fields_by_name['time'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
 _WEATHERFORECASTNOTIFICATION_FORECAST.containing_type = _WEATHERFORECASTNOTIFICATION
 _WEATHERFORECASTNOTIFICATION.fields_by_name['city'].message_type = _CITY
 _WEATHERFORECASTNOTIFICATION.fields_by_name['forecastList'].message_type = _WEATHERFORECASTNOTIFICATION_FORECAST
 _WEATHERFORECASTNOTIFICATION.fields_by_name['day'].message_type = google_dot_protobuf_dot_timestamp__pb2._TIMESTAMP
-_WEATHERFORECASTNOTIFICATION_FORECASTTYPE.containing_type = _WEATHERFORECASTNOTIFICATION
 _WEATHERFORECASTSUBSCRIPTION.fields_by_name['cities'].message_type = _CITY
 DESCRIPTOR.message_types_by_name['CulturalNewsletterSubscription'] = _CULTURALNEWSLETTERSUBSCRIPTION
 DESCRIPTOR.message_types_by_name['CulturalEventNotification'] = _CULTURALEVENTNOTIFICATION
@@ -340,6 +344,7 @@ DESCRIPTOR.message_types_by_name['City'] = _CITY
 DESCRIPTOR.message_types_by_name['WeatherForecastNotification'] = _WEATHERFORECASTNOTIFICATION
 DESCRIPTOR.message_types_by_name['WeatherForecastSubscription'] = _WEATHERFORECASTSUBSCRIPTION
 DESCRIPTOR.enum_types_by_name['CulturalEventType'] = _CULTURALEVENTTYPE
+DESCRIPTOR.enum_types_by_name['ForecastType'] = _FORECASTTYPE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 CulturalNewsletterSubscription = _reflection.GeneratedProtocolMessageType('CulturalNewsletterSubscription', (_message.Message,), {
@@ -394,8 +399,8 @@ _NOTIFICATIONS = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=817,
-  serialized_end=1048,
+  serialized_start=789,
+  serialized_end=1020,
   methods=[
   _descriptor.MethodDescriptor(
     name='SubscribeCulturalNewsletter',
