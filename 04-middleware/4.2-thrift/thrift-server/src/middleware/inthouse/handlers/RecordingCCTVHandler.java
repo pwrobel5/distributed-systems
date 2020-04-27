@@ -21,9 +21,13 @@ public class RecordingCCTVHandler extends CCTVHandler implements RecordingCCTV.I
 
     @Override
     public List<Image> captureVideo(String dateFrom, String dateTo) throws InvalidDateFormat, NoData, TException {
+        logger.info("Client trying to capture video from RecordinCCTV");
+
         if (state == DeviceState.OFF) {
+            logger.warning("Recording CCTV is off, client can't capture video");
             throw new NoData("CCTV is off and has no recording!");
         } else if (state == DeviceState.POWER_SAVING) {
+            logger.warning("Recordin CCTV is in power saving mode, client can't capture video");
             throw new NoData("CCTV is in power saving mode and did not record any video!");
         }
 
@@ -45,6 +49,7 @@ public class RecordingCCTVHandler extends CCTVHandler implements RecordingCCTV.I
                 video.add(new Image().setData(imageData).setDateTaken(dateString));
             }
         } catch (IOException e) {
+            logger.warning("Error with reading files, video for client will not be sent");
             throw new NoData("Cannot read data from camera memory!");
         }
 

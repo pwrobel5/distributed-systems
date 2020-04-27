@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class CCTVHandler extends DeviceHandler implements CCTV.Iface {
-    protected static final String DATE_FORMAT = "yyyy:MM:dd HH:mm:ss";
+    protected static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     public CCTVHandler(int id) {
         super(id);
@@ -35,7 +35,10 @@ public class CCTVHandler extends DeviceHandler implements CCTV.Iface {
 
     @Override
     public Image captureImage() throws NoData, TException {
+        logger.info("Client trying to capture image from class: " + this.getClass().getName());
+
         if (state == DeviceState.OFF) {
+            logger.warning("CCTV device if off, client can't capture image");
             throw new NoData("CCTV is off!");
         }
 
@@ -47,6 +50,7 @@ public class CCTVHandler extends DeviceHandler implements CCTV.Iface {
 
             return new Image().setData(byteImage).setDateTaken(dateString);
         } catch (IOException e) {
+            logger.warning("Error with reading image for client, image will not be sent");
             throw new NoData("Cannot capture image!");
         }
     }

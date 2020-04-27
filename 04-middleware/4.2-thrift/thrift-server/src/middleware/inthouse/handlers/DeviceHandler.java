@@ -8,8 +8,10 @@ import org.apache.thrift.TException;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 
 public class DeviceHandler implements Device.Iface {
+    protected static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
     protected DeviceState state = DeviceState.OFF;
     protected int id;
     protected final Lock lock = new ReentrantLock();
@@ -21,6 +23,8 @@ public class DeviceHandler implements Device.Iface {
     @Override
     public ReplyStatus turnOn() throws TException {
         lock.lock();
+
+        logger.info("Client turning on device in class: " + this.getClass().getName());
 
         ReplyStatus reply = new ReplyStatus();
         if (state == DeviceState.ON) {
@@ -38,6 +42,8 @@ public class DeviceHandler implements Device.Iface {
     public ReplyStatus turnOff() throws TException {
         lock.lock();
 
+        logger.info("Client turning off device in class: " + this.getClass().getName());
+
         ReplyStatus reply = new ReplyStatus();
         if (state == DeviceState.OFF) {
             reply.setMessage("Device is already off!");
@@ -54,6 +60,8 @@ public class DeviceHandler implements Device.Iface {
     public ReplyStatus powerSavingMode() throws TException {
         lock.lock();
 
+        logger.info("Client turning on power saving mode for device in class: " + this.getClass().getName());
+
         ReplyStatus reply = new ReplyStatus();
         if (state == DeviceState.POWER_SAVING) {
             reply.setMessage("Device is already in power saving mode!");
@@ -61,7 +69,7 @@ public class DeviceHandler implements Device.Iface {
             state = DeviceState.POWER_SAVING;
         }
         lock.unlock();
-        
+
         reply.setStatus(Status.SUCCESS);
         return reply;
     }

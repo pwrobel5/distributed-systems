@@ -29,7 +29,10 @@ public class ThermometerHandler extends DeviceHandler implements Thermometer.Ifa
 
     @Override
     public double getCurrentTemperature() throws TException {
+        logger.info("Client trying to read temperature");
+
         if (state == DeviceState.OFF) {
+            logger.warning("Device is off, client can't read temperature");
             throw new NoData("Thermometer is off!");
         }
 
@@ -38,9 +41,13 @@ public class ThermometerHandler extends DeviceHandler implements Thermometer.Ifa
 
     @Override
     public List<Double> getTemperatureHistory(String dateFrom, String dateTo) throws InvalidDateFormat, NoData, TException {
+        logger.info("Client trying to read temperature history");
+
         if (state == DeviceState.OFF) {
+            logger.warning("Device is off, client can't read temperature history");
             throw new NoData("Thermometer if off!");
         } else if (state == DeviceState.POWER_SAVING) {
+            logger.warning("Device is in power saving mode, client can't read temperature history");
             throw new NoData("Thermometer is in power saving mode and did not collect data!");
         }
 
@@ -48,6 +55,7 @@ public class ThermometerHandler extends DeviceHandler implements Thermometer.Ifa
             Date from = new SimpleDateFormat(DATE_FORMAT).parse(dateFrom);
             Date to = new SimpleDateFormat(DATE_FORMAT).parse(dateTo);
         } catch (ParseException e) {
+            logger.warning("Wrong input date format, temperature history will not be sent");
             throw new InvalidDateFormat(DATE_FORMAT);
         }
 

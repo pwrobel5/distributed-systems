@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <thrift/transport/TSocket.h>
@@ -51,8 +52,8 @@ void handleThermometer(std::shared_ptr<TProtocol> protocol) {
     std::string serviceName;
     std::cin >> serviceName;
 
-    protocol = std::make_shared<TMultiplexedProtocol>(protocol, serviceName);
-    ThermometerClient client(protocol);
+    std::shared_ptr<TProtocol> localProtocol = std::make_shared<TMultiplexedProtocol>(protocol, serviceName);
+    ThermometerClient client(localProtocol);
     bool endOperation = false;
 
     while (!endOperation) {
@@ -100,8 +101,8 @@ void handleBulbulator(std::shared_ptr<TProtocol> protocol) {
     std::string serviceName;
     std::cin >> serviceName;
 
-    protocol = std::make_shared<TMultiplexedProtocol>(protocol, serviceName);
-    BulbulatorClient client(protocol);
+    std::shared_ptr<TProtocol> localProtocol = std::make_shared<TMultiplexedProtocol>(protocol, serviceName);
+    BulbulatorClient client(localProtocol);
     bool endOperation = false;
 
     while (!endOperation) {
@@ -117,9 +118,9 @@ void handleBulbulator(std::shared_ptr<TProtocol> protocol) {
                 if (chosenOption == "d") {
                     client.makeBulbulbul(reply);
                     printReply(reply);
+                } else {
+                    std::cout << "Invalid option!" << std::endl;
                 }
-            } else {
-                std::cout << "Invalid option!" << std::endl;
             }
         } catch (NoData &nd) {
             std::cout << "No data: " << nd.why << std::endl;
@@ -130,8 +131,120 @@ void handleBulbulator(std::shared_ptr<TProtocol> protocol) {
     }
 }
 
-void handleCCTV(std::shared_ptr<TProtocol> protocol) {
+void saveImage(Image image, std::string fileName) {
+    FILE *outputFile = fopen(fileName.c_str(), "wb");
+    fwrite(image.data.c_str(), 1, image.data.size(), outputFile);
+    fclose(outputFile);
+}
 
+void handleStandardCCTV(std::shared_ptr<TProtocol> protocol) {
+    std::cout << "Enter CCTV service name: ";
+    std::string serviceName;
+    std::cin >> serviceName;
+
+    std::shared_ptr<TProtocol> localProtocol = std::make_shared<TMultiplexedProtocol>(protocol, serviceName);
+    CCTVClient client(localProtocol);
+    bool endOperation = false;
+
+    while (!endOperation) {
+        std::cout << COMMON_MENU_ENTRY;
+        std::cout << "\td - capture image\n\n";
+        std::string chosenOption;
+        std::cout << "Enter option: ";
+        std::cin >> chosenOption;
+        ReplyStatus reply;
+
+        try {
+            if (!handleCommonOptions(client, chosenOption, endOperation)) {
+                if (chosenOption == "d") {
+                    Image image;
+                    client.captureImage(image);
+                    std::cout << "Captured image from: " << image.dateTaken << std::endl;
+                    std::string fileName = "output_" + image.dateTaken + ".jpg";
+                    saveImage(image, fileName);
+                } else {
+                    std::cout << "Invalid option!" << std::endl;
+                }
+            }
+        } catch (NoData &nd) {
+            std::cout << "No data: " << nd.why << std::endl;
+        } catch (TException &tx) {
+            std::cout << "Uncorrect service id!" << std::endl;
+            endOperation = true;
+        }
+    }
+}
+
+void handleRecordingCCTV(std::shared_ptr<TProtocol> protocol) {
+    std::cout << "Enter Recording CCTV service name: ";
+    std::string serviceName;
+    std::cin >> serviceName;
+
+    std::shared_ptr<TProtocol> localProtocol = std::make_shared<TMultiplexedProtocol>(protocol, serviceName);
+    RecordingCCTVClient client(localProtocol);
+    bool endOperation = false;
+
+    while (!endOperation) {
+        std::cout << COMMON_MENU_ENTRY;
+        std::cout << "\td - capture image\n\te - capture video\n\n";
+        std::string chosenOption;
+        std::cout << "Enter option: ";
+        std::cin >> chosenOption;
+        ReplyStatus reply;
+
+        try {
+            if (!handleCommonOptions(client, chosenOption, endOperation)) {
+                if (chosenOption == "d") {
+                    Image image;
+                    client.captureImage(image);
+                    std::cout << "Captured image from: " << image.dateTaken << std::endl;
+                    std::string fileName = "output_" + image.dateTaken + ".jpg";
+                    saveImage(image, fileName);
+                } else if (chosenOption == "e") {
+                    std::vector<Image> images;
+                    std::string dateFrom, dateTo;
+                    std::cout << "Enter beginning hour: ";
+                    std::cin.ignore();
+                    std::getline(std::cin, dateFrom);
+                    std::cout << "Enter end hour: ";
+                    std::getline(std::cin, dateTo);
+
+                    client.captureVideo(images, dateFrom, dateTo);
+                    std::cout << "Captured video" << std::endl;
+                    for (int i = 0; i < images.size(); i++) {
+                        saveImage(images[i], "output_" + images[i].dateTaken + std::to_string(i) + ".jpg");
+                    }
+                    std::cout << "Video saved" << std::endl;
+                } else {
+                    std::cout << "Invalid option!" << std::endl;
+                }
+            }
+        } catch (NoData &nd) {
+            std::cout << "No data: " << nd.why << std::endl;
+        } catch (InvalidDateFormat &idf) {
+            std::cout << "Invalid date format! Correct format: " << idf.desiredFormat << std::endl;
+        } catch (TException &tx) {
+            std::cout << "Uncorrect service id!" << std::endl;
+            endOperation = true;
+        }
+    }
+}
+
+void handleCCTV(std::shared_ptr<TProtocol> protocol) {
+    std::cout << "Choose CCTV device type:\n\ta - standard CCTV\n\tb - CCTV with recording tool\n\tx - back\n\n";
+    std::string chosenOption;
+    std::cout << "Enter option: ";
+    std::cin >> chosenOption;
+
+    if (chosenOption == "a") {
+        handleStandardCCTV(protocol);
+    } else if (chosenOption == "b") {
+        handleRecordingCCTV(protocol);
+    } else if (chosenOption == "x") {
+        return;
+    } else {
+        std::cout << "Invalid choice!" << std::endl;
+    }
 }
 
 int main() {

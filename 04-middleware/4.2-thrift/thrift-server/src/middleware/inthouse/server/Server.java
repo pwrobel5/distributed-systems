@@ -17,7 +17,11 @@ import org.apache.thrift.server.TThreadPoolServer.Args;
 import org.apache.thrift.transport.TServerSocket;
 import org.apache.thrift.transport.TServerTransport;
 
+import java.util.logging.Logger;
+
 public class Server {
+    private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
     public static void main(String[] args) {
         try {
             TServerTransport serverTransport = new TServerSocket(50060);
@@ -33,7 +37,7 @@ public class Server {
 
             TServer server = new TThreadPoolServer(new Args(serverTransport).protocolFactory(protocolFactory).processor(multiplex));
 
-            System.out.println("Starting multiplex thread pool server...");
+            logger.info("Starting multiplex thread pool server...");
             server.serve();
 
         } catch (Exception e) {
