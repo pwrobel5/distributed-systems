@@ -24,6 +24,28 @@ void printReply(ReplyStatus reply) {
         std::cout << reply.message << std::endl;
 }
 
+bool handleCommonOptions(DeviceClient client, const std::string &chosenOption, bool &endOperation) {
+    ReplyStatus reply;
+
+    if (chosenOption == "x") {
+        endOperation = true;
+        return true;
+    } else if (chosenOption == "a") {
+        client.turnOn(reply);
+        printReply(reply);
+        return true;
+    } else if (chosenOption == "b") {
+        client.turnOff(reply);
+        printReply(reply);
+        return true;
+    } else if (chosenOption == "c") {
+        client.powerSavingMode(reply);
+        printReply(reply);
+        return true;
+    }
+    return false;
+}
+
 void handleThermometer(std::shared_ptr<TProtocol> protocol) {
     std::cout << "Enter thermometer service name: ";
     std::string serviceName;
@@ -37,35 +59,29 @@ void handleThermometer(std::shared_ptr<TProtocol> protocol) {
         std::cout << COMMON_MENU_ENTRY;
         std::cout << "\td - read temperature\n\te - get temperature history\n\n";
         std::string chosenOption;
+        std::cout << "Enter option: ";
         std::cin >> chosenOption;
         ReplyStatus reply;
 
         try {
-            if (chosenOption == "x")
-                endOperation = true;
-            else if (chosenOption == "a") {
-                client.turnOn(reply);
-                printReply(reply);
-            } else if (chosenOption == "b") {
-                client.turnOff(reply);
-                printReply(reply);
-            } else if (chosenOption == "c") {
-                client.powerSavingMode(reply);
-                printReply(reply);
-            } else if (chosenOption == "d") {
-                double temperature = client.getCurrentTemperature();
-                std::cout << "Read temperature: " << temperature << std::endl;
-            } else if (chosenOption == "e") {
-                std::string dateFrom, dateTo;
-                std::cout << "Enter beginning hour: ";
-                std::cin >> dateFrom;
-                std::cout << "Enter end hour: ";
-                std::cin >> dateTo;
+            if (!handleCommonOptions(client, chosenOption, endOperation)) {
+                if (chosenOption == "d") {
+                    double temperature = client.getCurrentTemperature();
+                    std::cout << "Read temperature: " << temperature << std::endl;
+                } else if (chosenOption == "e") {
+                    std::string dateFrom, dateTo;
+                    std::cout << "Enter beginning hour: ";
+                    std::cin >> dateFrom;
+                    std::cout << "Enter end hour: ";
+                    std::cin >> dateTo;
 
-                std::vector<double> temperatureHistory;
-                client.getTemperatureHistory(temperatureHistory, dateFrom, dateTo);
-                for (auto &i : temperatureHistory) {
-                    std::cout << "\tTemperature: " << i << std::endl;
+                    std::vector<double> temperatureHistory;
+                    client.getTemperatureHistory(temperatureHistory, dateFrom, dateTo);
+                    for (auto &i : temperatureHistory) {
+                        std::cout << "\tTemperature: " << i << std::endl;
+                    }
+                } else {
+                    std::cout << "Invalid option!" << std::endl;
                 }
             }
         } catch (NoData &nd) {
@@ -79,11 +95,42 @@ void handleThermometer(std::shared_ptr<TProtocol> protocol) {
     }
 }
 
-void handleBulbulator() {
+void handleBulbulator(std::shared_ptr<TProtocol> protocol) {
+    std::cout << "Enter Bulbulator service name: ";
+    std::string serviceName;
+    std::cin >> serviceName;
 
+    protocol = std::make_shared<TMultiplexedProtocol>(protocol, serviceName);
+    BulbulatorClient client(protocol);
+    bool endOperation = false;
+
+    while (!endOperation) {
+        std::cout << COMMON_MENU_ENTRY;
+        std::cout << "\td - make bulbulbul\n\n";
+        std::string chosenOption;
+        std::cout << "Enter option: ";
+        std::cin >> chosenOption;
+        ReplyStatus reply;
+
+        try {
+            if (!handleCommonOptions(client, chosenOption, endOperation)) {
+                if (chosenOption == "d") {
+                    client.makeBulbulbul(reply);
+                    printReply(reply);
+                }
+            } else {
+                std::cout << "Invalid option!" << std::endl;
+            }
+        } catch (NoData &nd) {
+            std::cout << "No data: " << nd.why << std::endl;
+        } catch (TException &tx) {
+            std::cout << "Uncorrect service id!" << std::endl;
+            endOperation = true;
+        }
+    }
 }
 
-void handleCCTV() {
+void handleCCTV(std::shared_ptr<TProtocol> protocol) {
 
 }
 
@@ -113,9 +160,9 @@ int main() {
             else if (response == "a")
                 handleThermometer(protocol);
             else if (response == "b")
-                handleBulbulator();
+                handleBulbulator(protocol);
             else if (response == "c")
-                handleCCTV();
+                handleCCTV(protocol);
             else
                 std::cout << "Invalid option!" << std::endl;
         }
