@@ -9,32 +9,31 @@ import java.util.List;
 public class ChildrenMonitor implements Watcher, AsyncCallback.StatCallback {
     private final ZooKeeper zooKeeper;
     private final String node;
+    private final String rootNode;
     private final List<String> children;
 
-    public ChildrenMonitor(ZooKeeper zooKeeper, String node) {
+    public ChildrenMonitor(ZooKeeper zooKeeper, String node, String rootNode) {
         this.zooKeeper = zooKeeper;
         this.node = node;
+        this.rootNode = rootNode;
         this.children = new LinkedList<>();
 
         this.zooKeeper.exists(node, true, this, null);
     }
 
-    public static int printChildren(ZooKeeper zooKeeper, String node, int level) {
+    private int countChildren(String node) {
         int result = 0;
 
         try {
             List<String> children = zooKeeper.getChildren(node, null);
-
-            String prefix = "\t".repeat(level);
-            System.out.println(prefix + node);
             result += children.size();
 
             for (String child : children) {
                 String childNode = node + "/" + child;
-                result += printChildren(zooKeeper, childNode, level + 1);
+                result += countChildren(childNode);
             }
         } catch (KeeperException | InterruptedException e) {
-            System.out.println("Error while printing children");
+            System.out.println("[CHILDREN MONITOR] Error while counting children");
             e.printStackTrace();
         }
 
@@ -51,19 +50,19 @@ public class ChildrenMonitor implements Watcher, AsyncCallback.StatCallback {
                 currentChildren.removeAll(children);
 
                 if (!currentChildren.isEmpty()) {
-                    System.out.println("New children found");
+                    System.out.println("[CHILDREN MONITOR] New children found");
 
                     for (String child : currentChildren) {
                         children.add(child);
                         String childPath = node + "/" + child;
-                        zooKeeper.exists(childPath, true, new ChildrenMonitor(zooKeeper, childPath), null);
+                        zooKeeper.exists(childPath, true, new ChildrenMonitor(zooKeeper, childPath, rootNode), null);
                     }
 
-                    int childrenNumber = printChildren(zooKeeper, "/z", 0);
-                    System.out.printf("\nChildren number: %d\n", childrenNumber);
+                    int childrenNumber = countChildren(rootNode);
+                    System.out.printf("[CHILDREN MONITOR] Children number: %d\n", childrenNumber);
                 }
             } catch (KeeperException | InterruptedException e) {
-                System.out.println("Error with reading children list");
+                System.out.println("[CHILDREN MONITOR] Error with reading children list");
                 e.printStackTrace();
             }
         } else {

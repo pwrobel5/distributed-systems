@@ -21,7 +21,7 @@ public class NodeMonitor implements Watcher, AsyncCallback.StatCallback {
         this.externalProcess = null;
 
         zooKeeper.exists(zNode, true, this, null);
-        zooKeeper.exists(zNode, true, new ChildrenMonitor(zooKeeper, zNode), null);
+        zooKeeper.exists(zNode, true, new ChildrenMonitor(zooKeeper, zNode, zNode), null);
     }
 
     public void processResult(int i, String s, Object o, Stat stat) {
@@ -29,7 +29,7 @@ public class NodeMonitor implements Watcher, AsyncCallback.StatCallback {
         switch (code) {
             case OK -> {
                 if (externalProcess == null) {
-                    System.out.printf("Node %s exists\nTrying to execute external process...\n", zNode);
+                    System.out.printf("[NODE MONITOR] Node %s exists\n[NODE MONITOR] Trying to execute external process...\n", zNode);
 
                     try {
                         ProcessBuilder builder = new ProcessBuilder(externalProgram);
@@ -45,27 +45,27 @@ public class NodeMonitor implements Watcher, AsyncCallback.StatCallback {
                                     System.out.println("[EXTERNAL] " + line);
                                 }
                             } catch (IOException e) {
-                                System.out.println("Error with reading output from external process");
+                                System.out.println("[EXTERNAL] Error with reading output from external process");
                                 e.printStackTrace();
                             }
                         }).start();
 
-                        System.out.println("External process started");
+                        System.out.println("[NODE MONITOR] External process started");
                     } catch (IOException e) {
-                        System.out.println("Error with external process execution");
+                        System.out.println("[NODE MONITOR] Error with external process execution");
                         e.printStackTrace();
                     }
                 }
             }
             case NONODE -> {
                 if (externalProcess != null) {
-                    System.out.printf("Node %s does not exist\nTrying to kill external process...\n", zNode);
+                    System.out.printf("[NODE MONITOR] Node %s does not exist\n[NODE MONITOR] Trying to kill external process...\n", zNode);
                     externalProcess.destroy();
                     externalProcess = null;
-                    System.out.println("External process killed");
+                    System.out.println("[NODE MONITOR] External process killed");
                 }
             }
-            case SESSIONEXPIRED, NOAUTH -> System.out.println("Session expired or no authentication");
+            case SESSIONEXPIRED, NOAUTH -> System.out.println("[NODE MONITOR] Session expired or no authentication");
             default -> {
                 if (externalProcess != null) {
                     externalProcess.destroy();
