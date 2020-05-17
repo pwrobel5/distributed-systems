@@ -19,6 +19,30 @@ public class ChildrenMonitor implements Watcher, AsyncCallback.StatCallback {
         this.zooKeeper.exists(node, true, this, null);
     }
 
+    public static int printChildren(ZooKeeper zooKeeper, String node, int level) {
+        int result = 0;
+
+        try {
+            List<String> children = zooKeeper.getChildren(node, null);
+
+            String prefix = "\t".repeat(level);
+            System.out.println(prefix + node);
+            result += 1;
+
+            for(String child : children) {
+                String childNode = node + "/" + child;
+                result += printChildren(zooKeeper, childNode, level + 1);
+            }
+        } catch (KeeperException | InterruptedException e) {
+            System.out.println("Error while printing children");
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    // TODO - remove unnecessary prints, refactor it
+
     @Override
     public void processResult(int i, String s, Object o, Stat stat) {
         KeeperException.Code code = KeeperException.Code.get(i);
@@ -36,6 +60,8 @@ public class ChildrenMonitor implements Watcher, AsyncCallback.StatCallback {
                         zooKeeper.exists(childPath, true, new ChildrenMonitor(zooKeeper, childPath), null);
                         System.out.println(child);
                     }
+                    int childrenNumber = printChildren(zooKeeper, "/z", 0);
+                    System.out.println("\nChildren number: " + childrenNumber);
                 }
             } catch (KeeperException | InterruptedException e) {
                 System.out.println("Error with reading children list");
@@ -48,6 +74,7 @@ public class ChildrenMonitor implements Watcher, AsyncCallback.StatCallback {
 
     @Override
     public void process(WatchedEvent watchedEvent) {
+        System.out.println("ProcessAA");
         zooKeeper.exists(node, true, this, null);
     }
 }
