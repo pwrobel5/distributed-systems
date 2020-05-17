@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 public class Main {
     public static void main(String[] args) {
         try {
-            DataMonitor dataMonitor = new DataMonitor("127.0.0.1:2181", "/z", null);
+            DataMonitor dataMonitor = new DataMonitor("127.0.0.1:2181", "/z", "./external.sh");
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
             while(true) {
