@@ -1,4 +1,4 @@
-package distributed.systems.zookeeper;
+package distributed.systems.zookeeper.monitors;
 
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.Stat;
@@ -9,7 +9,7 @@ import java.util.List;
 public class ChildrenMonitor implements Watcher, AsyncCallback.StatCallback {
     private final ZooKeeper zooKeeper;
     private final String node;
-    private List<String> children;
+    private final List<String> children;
 
     public ChildrenMonitor(ZooKeeper zooKeeper, String node) {
         this.zooKeeper = zooKeeper;
@@ -27,9 +27,9 @@ public class ChildrenMonitor implements Watcher, AsyncCallback.StatCallback {
 
             String prefix = "\t".repeat(level);
             System.out.println(prefix + node);
-            result += 1;
+            result += children.size();
 
-            for(String child : children) {
+            for (String child : children) {
                 String childNode = node + "/" + child;
                 result += printChildren(zooKeeper, childNode, level + 1);
             }
@@ -41,8 +41,6 @@ public class ChildrenMonitor implements Watcher, AsyncCallback.StatCallback {
         return result;
     }
 
-    // TODO - remove unnecessary prints, refactor it
-
     @Override
     public void processResult(int i, String s, Object o, Stat stat) {
         KeeperException.Code code = KeeperException.Code.get(i);
@@ -50,18 +48,19 @@ public class ChildrenMonitor implements Watcher, AsyncCallback.StatCallback {
             try {
                 List<String> currentChildren = zooKeeper.getChildren(node, this);
                 children.retainAll(currentChildren);
-
                 currentChildren.removeAll(children);
+
                 if (!currentChildren.isEmpty()) {
                     System.out.println("New children found");
-                    for (String child: currentChildren) {
+
+                    for (String child : currentChildren) {
                         children.add(child);
                         String childPath = node + "/" + child;
                         zooKeeper.exists(childPath, true, new ChildrenMonitor(zooKeeper, childPath), null);
-                        System.out.println(child);
                     }
+
                     int childrenNumber = printChildren(zooKeeper, "/z", 0);
-                    System.out.println("\nChildren number: " + childrenNumber);
+                    System.out.printf("\nChildren number: %d\n", childrenNumber);
                 }
             } catch (KeeperException | InterruptedException e) {
                 System.out.println("Error with reading children list");
@@ -74,7 +73,6 @@ public class ChildrenMonitor implements Watcher, AsyncCallback.StatCallback {
 
     @Override
     public void process(WatchedEvent watchedEvent) {
-        System.out.println("ProcessAA");
         zooKeeper.exists(node, true, this, null);
     }
 }

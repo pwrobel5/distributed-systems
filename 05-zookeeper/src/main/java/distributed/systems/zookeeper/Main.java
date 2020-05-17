@@ -1,5 +1,7 @@
 package distributed.systems.zookeeper;
 
+import distributed.systems.zookeeper.monitors.ChildrenMonitor;
+import distributed.systems.zookeeper.monitors.NodeMonitor;
 import org.apache.zookeeper.ZooKeeper;
 
 import java.io.BufferedReader;
@@ -16,13 +18,16 @@ public class Main {
             NodeMonitor nodeMonitor = new NodeMonitor(HOST_PORT, NODE, EXTERNAL_PROGRAM);
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-            while(true) {
+            while (true) {
                 String input = reader.readLine();
-                if(input.equalsIgnoreCase("print")) {
-                    ChildrenMonitor.printChildren(new ZooKeeper(HOST_PORT, 3000, null), NODE, 0);
+                if (input.equalsIgnoreCase("print")) {
+                    int childrenNumber = ChildrenMonitor.printChildren(new ZooKeeper(HOST_PORT, 3000, null), NODE, 0);
+                    System.out.printf("Children number: %d\n", childrenNumber);
                 }
-                if(input.equalsIgnoreCase("q"))
+                if (input.equalsIgnoreCase("q")) {
+                    System.out.println("Exiting program...");
                     break;
+                }
             }
         } catch (IOException e) {
             System.out.println("Error with creating DataMonitor");
