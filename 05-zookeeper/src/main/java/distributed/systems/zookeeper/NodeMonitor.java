@@ -5,19 +5,20 @@ import org.apache.zookeeper.data.Stat;
 
 import java.io.*;
 
-public class DataMonitor implements Watcher, AsyncCallback.StatCallback {
+public class NodeMonitor implements Watcher, AsyncCallback.StatCallback {
     private final ZooKeeper zooKeeper;
     private final String zNode;
     private final String externalProgram;
     private Process externalProcess;
 
-    public DataMonitor(String hostPort, String zNode, String externalProgram) throws IOException {
+    public NodeMonitor(String hostPort, String zNode, String externalProgram) throws IOException {
         this.zooKeeper = new ZooKeeper(hostPort, 3000, this);
         this.zNode = zNode;
         this.externalProgram = externalProgram;
         this.externalProcess = null;
 
         zooKeeper.exists(zNode, true, this, null);
+        zooKeeper.exists(zNode, true, new ChildrenMonitor(zooKeeper, zNode), null);
         System.out.println("Created monitor");
     }
 
@@ -26,12 +27,6 @@ public class DataMonitor implements Watcher, AsyncCallback.StatCallback {
         switch (code) {
             case OK -> {
                 System.out.println("Node exists!");
-
-                try {
-                    System.out.println("" + zooKeeper.getChildren(zNode, true));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
 
                 if (externalProcess == null) {
                     System.out.println("Trying to execute external process...");
