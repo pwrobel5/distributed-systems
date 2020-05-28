@@ -1,7 +1,5 @@
 package distributed.systems.rest;
 
-import com.owlike.genson.Genson;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -11,8 +9,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.TreeMap;
 
 @Path("/available")

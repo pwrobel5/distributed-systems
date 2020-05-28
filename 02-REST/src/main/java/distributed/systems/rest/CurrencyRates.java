@@ -28,21 +28,21 @@ public class CurrencyRates {
         try {
             dateFrom = LocalDate.parse(dateFromString, formatter);
 
-            if(dateToString.trim().isEmpty()) dateTo = dateFrom;
+            if (dateToString.trim().isEmpty()) dateTo = dateFrom;
             else dateTo = LocalDate.parse(dateToString, formatter);
-        } catch(DateTimeParseException e) {
+        } catch (DateTimeParseException e) {
             resultBuilder.append("<h1>Incorrect date format!</h1></body></html>");
             return resultBuilder.toString();
         }
 
-        if(baseSymbol == null || baseSymbol.trim().isEmpty()) baseSymbol = "EUR";
+        if (baseSymbol == null || baseSymbol.trim().isEmpty()) baseSymbol = "EUR";
         else baseSymbol = baseSymbol.toUpperCase();
 
         resultBuilder.append("<b>Base: </b>").append(baseSymbol).append("<br>");
         foreignSymbols = (foreignSymbols == null) ? "" : foreignSymbols.trim();
         TreeMap<String, LinkedList<ExchangeRateEntry>> currenciesExchangeRates = new TreeMap<>();
 
-        for(LocalDate date = dateFrom; date.compareTo(dateTo) <= 0; date = date.plusDays(1)) {
+        for (LocalDate date = dateFrom; date.compareTo(dateTo) <= 0; date = date.plusDays(1)) {
             TreeMap<Object, Object> currentDateRates = CurrencyRatesReader.readRatesForDate(baseSymbol, foreignSymbols, date);
             processData(date, currentDateRates, currenciesExchangeRates);
         }
@@ -50,7 +50,7 @@ public class CurrencyRates {
         resultBuilder.append("<table style=\"width:50%\">");
 
         StringBuilder historyTableBuilder = new StringBuilder();
-        for(String currencySymbol : currenciesExchangeRates.keySet()) {
+        for (String currencySymbol : currenciesExchangeRates.keySet()) {
             List<ExchangeRateEntry> currentValue = currenciesExchangeRates.get(currencySymbol);
             historyTableBuilder.append(makeCurrencyTable(currentValue, currencySymbol));
             Collections.sort(currentValue);
@@ -69,7 +69,7 @@ public class CurrencyRates {
         for (Object keyObject : currentDateRates.keySet()) {
             String currencySymbol = (String) keyObject;
 
-            if(!currenciesExchangeRates.containsKey(currencySymbol)) {
+            if (!currenciesExchangeRates.containsKey(currencySymbol)) {
                 currenciesExchangeRates.put(currencySymbol, new LinkedList<>());
             }
 
@@ -82,7 +82,7 @@ public class CurrencyRates {
         StringBuilder resultBuilder = new StringBuilder();
         resultBuilder.append("<tr><th colspan=\"6\">").append(currencySymbol).append("</th></tr>");
 
-        for(ExchangeRateEntry exchangeRateEntry : ratesList) {
+        for (ExchangeRateEntry exchangeRateEntry : ratesList) {
             resultBuilder.append("<tr><td colspan=\"3\" align=\"center\">").append(exchangeRateEntry.getDate().toString()).append("</td>");
             resultBuilder.append("<td colspan=\"3\" align=\"center\">")
                     .append(String.format(Locale.US, "%10.6f", exchangeRateEntry.getRate())).append("</td></tr>");
@@ -98,7 +98,7 @@ public class CurrencyRates {
         resultBuilder.append("<th>Maximal rate</th><th>Maximal rate date</th>");
         resultBuilder.append("<th>Average rate</th></tr>");
 
-        for(String currencySymbol : currenciesExchangeRates.keySet()) {
+        for (String currencySymbol : currenciesExchangeRates.keySet()) {
             resultBuilder.append("<tr><td align=\"center\">").append(currencySymbol).append("</td>");
             LinkedList<ExchangeRateEntry> currencyList = currenciesExchangeRates.get(currencySymbol);
 
@@ -123,7 +123,7 @@ public class CurrencyRates {
     private static double calculateAverageRate(LinkedList<ExchangeRateEntry> rates) {
         double sum = 0.0;
 
-        for(ExchangeRateEntry entry : rates) {
+        for (ExchangeRateEntry entry : rates) {
             sum += entry.getRate();
         }
 
