@@ -5,6 +5,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import distributed.systems.akka.actors.Client;
 import distributed.systems.akka.actors.Server;
+import distributed.systems.akka.messages.PriceRequest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,7 +26,10 @@ public class Main {
             try {
                 String line = reader.readLine();
                 if (line.equalsIgnoreCase("quit")) {
+                    System.out.println("Finishing work...");
                     continueReading = false;
+                } else {
+                    client.tell(new PriceRequest(line, server), ActorRef.noSender());
                 }
             } catch (IOException e) {
                 System.out.println("Error with reading input!");
