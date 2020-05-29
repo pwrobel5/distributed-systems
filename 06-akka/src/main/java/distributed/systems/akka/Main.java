@@ -6,6 +6,8 @@ import akka.actor.Props;
 import distributed.systems.akka.actors.Client;
 import distributed.systems.akka.actors.Server;
 import distributed.systems.akka.messages.PriceRequest;
+import distributed.systems.akka.messages.PriceResult;
+import distributed.systems.akka.utils.DatabaseUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,6 +19,8 @@ public class Main {
         final ActorSystem actorSystem = ActorSystem.create("ex6_system");
         final ActorRef server = actorSystem.actorOf(Props.create(Server.class), "server");
         final ActorRef client = actorSystem.actorOf(Props.create(Client.class), "client");
+
+        DatabaseUtils.createHistoryTable();
 
         System.out.println("Started, type product name to get information or type 'quit' to exit");
 

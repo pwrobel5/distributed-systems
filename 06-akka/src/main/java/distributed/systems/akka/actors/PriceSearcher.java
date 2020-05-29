@@ -3,9 +3,9 @@ package distributed.systems.akka.actors;
 import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import distributed.systems.akka.constants.Constants;
 import distributed.systems.akka.messages.PriceRequest;
 import distributed.systems.akka.messages.ShopPriceResult;
+import distributed.systems.akka.utils.Constants;
 
 import java.util.Random;
 
@@ -22,7 +22,7 @@ public class PriceSearcher extends AbstractActor {
 
                     double price = Constants.PRICE_MIN + (Constants.PRICE_MAX - Constants.PRICE_MIN) * random.nextDouble();
                     getSender().tell(new ShopPriceResult(request.getProductName(), price), getSelf());
-                    context().stop(self());
+                    context().stop(getSelf());
                 })
                 .matchAny(o -> log.info("Received an unrecognized message"))
                 .build();
