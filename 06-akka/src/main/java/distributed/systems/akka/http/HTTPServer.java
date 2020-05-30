@@ -22,12 +22,15 @@ import distributed.systems.akka.messages.PriceRequest;
 import distributed.systems.akka.messages.PriceResult;
 import distributed.systems.akka.utils.Constants;
 import distributed.systems.akka.utils.DatabaseUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.CompletionStage;
 
 import static akka.http.javadsl.server.Directives.*;
@@ -73,7 +76,7 @@ public class HTTPServer {
                 .matchAny(e -> complete(StatusCodes.BAD_REQUEST, "Error: " + e))
                 .build();
 
-        return getPricesRoute().seal(rejectionHandler, exceptionHandler);
+        return concat(getPricesRoute(), getReviewsRoute()).seal(rejectionHandler, exceptionHandler);
     }
 
     private Route getPricesRoute() {
@@ -83,14 +86,47 @@ public class HTTPServer {
 
                     return onSuccess(actorSystemReply, (reply) -> {
                         PriceResult priceResult = (PriceResult) reply;
-                        return complete(((PriceResult) reply).getMessage());
+                        return complete((priceResult).getMessage());
                     });
                 })
         );
     }
 
-    private Route getOpinionsRoute() {
-        return null;
+    private Route getReviewsRoute() {
+        return path(segment("review").slash(segment()), productName ->
+                get(() -> {
+                    String url = Constants.OPINEO_URL + productName + Constants.OPINEO_END_PARAMETER;
+
+                    CompletionStage<Object> remotePageReply = Http.get(actorSystem)
+                            .singleRequest(HttpRequest.create(url))
+                            .thenCompose(response -> response.entity().toStrict(Constants.HTTP_REMOTE_REQUEST_TIMEOUT, materializer))
+                            .thenApply(entity -> entity.getData().utf8String())
+                            .thenApply(html -> {
+                                Element prosSection = Jsoup.parse(html)
+                                        .body()
+                                        .getElementById("page")
+                                        .getElementById("content")
+                                        .getElementById("screen")
+                                        .getElementsByClass("pls")
+                                        .first()
+                                        .getElementsByClass("shl_i pl_i")
+                                        .first()
+                                        .getElementsByClass("pl_attr")
+                                        .first();
+
+                                Element spanTag = prosSection.getElementsByTag("span").first();
+                                String text = spanTag.text();
+                                if (!text.equalsIgnoreCase("zalety")) {
+                                    return "No reviews found";
+                                }
+
+                                List<String> prosList = prosSection.getElementsByTag("li").eachText();
+                                prosList.removeIf(s -> s.equalsIgnoreCase("..."));
+                                return String.join("\n", prosList);
+                            });
+
+                    return onSuccess(remotePageReply, (reply) -> complete((String) reply));
+                }));
     }
 
     public void terminateHttpServer() {

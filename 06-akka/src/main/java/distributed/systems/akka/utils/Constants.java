@@ -24,6 +24,10 @@ public class Constants {
     public static final int HTTP_PORT = 8080;
     public static final int HTTP_TERMINATION_TIMEOUT = 3;
     public static final int HTTP_ACTOR_REQUEST_TIMEOUT = 1;
+    public static final int HTTP_REMOTE_REQUEST_TIMEOUT = 5000;
+
+    public static final String OPINEO_URL = "https://www.opineo.pl/?szukaj=";
+    public static final String OPINEO_END_PARAMETER = "&s=2";
 
     private Constants() {
     }
