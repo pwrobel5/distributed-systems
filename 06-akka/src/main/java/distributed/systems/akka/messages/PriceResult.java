@@ -1,25 +1,23 @@
 package distributed.systems.akka.messages;
 
+import distributed.systems.akka.utils.Constants;
+
 public class PriceResult {
-    private final String productName;
-    private final double price;
-    private final int queriesNumber;
+    private String message;
 
-    public PriceResult(String productName, double price, int queriesNumber) {
-        this.productName = productName;
-        this.price = price;
-        this.queriesNumber = queriesNumber;
+    public PriceResult(String productName, Double price, int queriesNumber) {
+        if (price.compareTo(Double.MAX_VALUE) == 0) {
+            message = String.format("No prices found for %s", productName);
+        } else {
+            message = String.format("Price found for %s, value: %f", productName, price);
+        }
+
+        if (queriesNumber != Constants.NO_QUERY_RESULTS) {
+            message = String.format("%s. Queries number: %d", message, queriesNumber);
+        }
     }
 
-    public String getProductName() {
-        return productName;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public int getQueriesNumber() {
-        return queriesNumber;
+    public String getMessage() {
+        return message;
     }
 }

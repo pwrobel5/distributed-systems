@@ -17,6 +17,14 @@ public class Constants {
 
     public static final int NO_QUERY_RESULTS = -1;
 
+    public static final String ACTOR_SYSTEM_NAME = "ex6_system";
+    public static final String HTTP_ACTOR_SYSTEM_NAME = "ex6_http";
+
+    public static final String HTTP_HOST_NAME = "localhost";
+    public static final int HTTP_PORT = 8080;
+    public static final int HTTP_TERMINATION_TIMEOUT = 3;
+    public static final int HTTP_ACTOR_REQUEST_TIMEOUT = 1;
+
     private Constants() {
     }
 }

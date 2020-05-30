@@ -6,7 +6,7 @@ import akka.actor.Props;
 import distributed.systems.akka.actors.Client;
 import distributed.systems.akka.actors.Server;
 import distributed.systems.akka.messages.PriceRequest;
-import distributed.systems.akka.messages.PriceResult;
+import distributed.systems.akka.utils.Constants;
 import distributed.systems.akka.utils.DatabaseUtils;
 
 import java.io.BufferedReader;
@@ -16,7 +16,7 @@ import java.io.InputStreamReader;
 public class Main {
 
     public static void main(String[] args) {
-        final ActorSystem actorSystem = ActorSystem.create("ex6_system");
+        final ActorSystem actorSystem = ActorSystem.create(Constants.ACTOR_SYSTEM_NAME);
         final ActorRef server = actorSystem.actorOf(Props.create(Server.class), "server");
         final ActorRef client = actorSystem.actorOf(Props.create(Client.class), "client");
 
