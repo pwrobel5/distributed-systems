@@ -18,7 +18,7 @@ public class Main {
     public static void main(String[] args) {
         final ActorSystem actorSystem = ActorSystem.create(Constants.ACTOR_SYSTEM_NAME);
         final ActorRef server = actorSystem.actorOf(Props.create(Server.class), "server");
-        final ActorRef client = actorSystem.actorOf(Props.create(Client.class), "client");
+        final ActorRef client = actorSystem.actorOf(Props.create(Client.class, server), "client");
 
         DatabaseUtils.createHistoryTable();
 
@@ -33,7 +33,7 @@ public class Main {
                     System.out.println("Finishing work...");
                     continueReading = false;
                 } else {
-                    client.tell(new PriceRequest(line, server), ActorRef.noSender());
+                    client.tell(new PriceRequest(line), ActorRef.noSender());
                 }
             } catch (IOException e) {
                 System.out.println("Error with reading input!");

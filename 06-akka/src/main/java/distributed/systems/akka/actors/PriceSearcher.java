@@ -21,7 +21,7 @@ public class PriceSearcher extends AbstractActor {
                     Thread.sleep(sleepingTime);
 
                     double price = Constants.PRICE_MIN + (Constants.PRICE_MAX - Constants.PRICE_MIN) * random.nextDouble();
-                    getSender().tell(new ShopPriceResult(request.getProductName(), price), getSelf());
+                    getSender().tell(new ShopPriceResult(price), getSelf());
                     context().stop(getSelf());
                 })
                 .matchAny(o -> log.info("Received an unrecognized message"))

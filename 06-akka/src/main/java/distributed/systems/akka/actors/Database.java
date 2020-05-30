@@ -30,8 +30,8 @@ public class Database extends AbstractActor {
             }
 
         } catch (SQLException e) {
-            System.err.println("Error with reading from database");
-            System.err.println(e.getMessage());
+            log.error("Error with reading from database");
+            log.error(e.getMessage());
         }
 
         return result;
@@ -59,12 +59,12 @@ public class Database extends AbstractActor {
         return receiveBuilder()
                 .match(PriceRequest.class, request -> {
                     String productName = request.getProductName();
-                    log.debug("Got request to database for product %s", productName);
+                    log.debug("Got request to database for product " + productName);
                     int queriesNumber = readQueriesNumber(productName);
 
                     DatabaseResult response = new DatabaseResult(queriesNumber);
                     getSender().tell(response, getSelf());
-                    log.debug("Sent result for product %s, equal %d", productName, queriesNumber);
+                    log.debug("Sent result for product " + productName + ", equal " + queriesNumber);
                     updateQueriesNumber(productName, queriesNumber);
 
                     context().stop(getSelf());

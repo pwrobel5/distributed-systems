@@ -82,7 +82,7 @@ public class HTTPServer {
     private Route getPricesRoute() {
         return path(segment("price").slash(segment()), productName ->
                 get(() -> {
-                    CompletionStage<Object> actorSystemReply = ask(server, new PriceRequest(productName, server), Duration.ofSeconds(Constants.HTTP_ACTOR_REQUEST_TIMEOUT));
+                    CompletionStage<Object> actorSystemReply = ask(server, new PriceRequest(productName), Duration.ofSeconds(Constants.HTTP_ACTOR_REQUEST_TIMEOUT));
 
                     return onSuccess(actorSystemReply, (reply) -> {
                         PriceResult priceResult = (PriceResult) reply;

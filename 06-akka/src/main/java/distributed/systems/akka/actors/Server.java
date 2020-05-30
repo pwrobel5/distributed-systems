@@ -31,12 +31,6 @@ public class Server extends AbstractActor {
     private final static Duration TIMEOUT = Duration.ofMillis(Constants.TIMEOUT_MILLIS);
 
     @Override
-    public void preStart() {
-        context().actorOf(Props.create(Shop.class), "shop1");
-        context().actorOf(Props.create(Shop.class), "shop2");
-    }
-
-    @Override
     public SupervisorStrategy supervisorStrategy() {
         return strategy;
     }
@@ -45,9 +39,9 @@ public class Server extends AbstractActor {
     public Receive createReceive() {
         return receiveBuilder()
                 .match(PriceRequest.class, request -> {
-                    log.debug("Got price request for product %s\n", request.getProductName());
-                    CompletableFuture<Object> price1 = ask(getContext().child("shop1").get(), request, TIMEOUT).toCompletableFuture();
-                    CompletableFuture<Object> price2 = ask(getContext().child("shop2").get(), request, TIMEOUT).toCompletableFuture();
+                    log.debug("Got price request for product " + request.getProductName());
+                    CompletableFuture<Object> price1 = ask(getContext().actorOf(Props.create(PriceSearcher.class)), request, TIMEOUT).toCompletableFuture();
+                    CompletableFuture<Object> price2 = ask(getContext().actorOf(Props.create(PriceSearcher.class)), request, TIMEOUT).toCompletableFuture();
                     CompletableFuture<Object> databaseQuery = ask(getContext().actorOf(Props.create(Database.class)), request, TIMEOUT).toCompletableFuture();
 
                     AtomicReference<Double> bestPrice = new AtomicReference<>(Double.MAX_VALUE);
@@ -66,7 +60,7 @@ public class Server extends AbstractActor {
                             }
                         } else {
                             ShopPriceResult shopPriceResult = (ShopPriceResult) response;
-                            log.debug("Price for %s received: %f\n", shopPriceResult.getProductName(), shopPriceResult.getPrice());
+                            log.debug("Price for " + request.getProductName() + "received: " + shopPriceResult.getPrice());
 
                             lock.lock();
                             try {
@@ -89,7 +83,7 @@ public class Server extends AbstractActor {
                             }
                         } else {
                             int result = ((DatabaseResult) response).getQueriesCount();
-                            log.debug("Queries number got: %d", result);
+                            log.debug("Queries number got: " + result);
 
                             queriesNumber.set(result);
                         }
