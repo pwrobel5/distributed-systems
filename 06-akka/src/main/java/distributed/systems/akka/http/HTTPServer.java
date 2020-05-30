@@ -139,11 +139,14 @@ public class HTTPServer {
 
         httpServer.startHttpServer();
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+        System.out.println("Server started, type 'quit' to terminate");
         boolean continueReading = true;
         while (continueReading) {
             try {
                 String line = reader.readLine();
                 if (line.equalsIgnoreCase("quit")) {
+                    System.out.println("Terminating server...");
                     httpServer.terminateHttpServer();
                     continueReading = false;
                 }

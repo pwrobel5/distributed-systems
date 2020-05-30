@@ -2,6 +2,7 @@ package distributed.systems.akka;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
 import distributed.systems.akka.actors.Client;
 import distributed.systems.akka.actors.Server;
@@ -22,7 +23,7 @@ public class Main {
 
         DatabaseUtils.createHistoryTable();
 
-        System.out.println("Started, type product name to get information or type 'quit' to exit");
+        System.out.println("Started, type product name to get information or type 'quit' to exit, type 'test' to run tests");
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         boolean continueReading = true;
@@ -32,6 +33,26 @@ public class Main {
                 if (line.equalsIgnoreCase("quit")) {
                     System.out.println("Finishing work...");
                     continueReading = false;
+                } else if (line.equalsIgnoreCase("test")) {
+                    System.out.println("Running tests");
+
+                    final ActorRef client1 = actorSystem.actorOf(Props.create(Client.class, server));
+                    final ActorRef client2 = actorSystem.actorOf(Props.create(Client.class, server));
+                    final ActorRef client3 = actorSystem.actorOf(Props.create(Client.class, server));
+
+                    client1.tell(new PriceRequest("laptop"), ActorRef.noSender());
+                    client2.tell(new PriceRequest("iPhone"), ActorRef.noSender());
+                    client3.tell(new PriceRequest("headphones"), ActorRef.noSender());
+
+                    try {
+                        Thread.sleep(Constants.TIMEOUT_MILLIS * 10);
+                        client1.tell(PoisonPill.getInstance(), ActorRef.noSender());
+                        client2.tell(PoisonPill.getInstance(), ActorRef.noSender());
+                        client3.tell(PoisonPill.getInstance(), ActorRef.noSender());
+                    } catch (InterruptedException e) {
+                        System.err.println("Interrupted tests");
+                        System.err.println(e.getMessage());
+                    }
                 } else {
                     client.tell(new PriceRequest(line), ActorRef.noSender());
                 }

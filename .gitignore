@@ -272,4 +272,4 @@ cmake-build-debug/
 
 *.jpg
 *.db
-
+*.drawio
