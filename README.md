@@ -8,3 +8,4 @@ Tasks from distributed systems academic course
 3. **RabbitMQ** - application simulating message exchange between space carriers and agencies ordering 3 different types of services from them
 4. **Middleware** - two applications - first simulating streaming cultural newsletter/weather forecast notifications using gRCP, second simulating management of intelligent house devices written using Apache Thrift
 5. **ZooKeeper** - application monitoring changes in node structure of ZooKeeper server
+6. **Akka** - application simulating searching price for given product in different shops with HTTP interface (also for reading data from remote website) written using Akka
